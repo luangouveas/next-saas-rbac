@@ -1,5 +1,5 @@
 {
-  "name": "my-turborepo",
+  "name": "next-saas-rbac",
   "private": true,
   "scripts": {
     "build": "turbo build",
