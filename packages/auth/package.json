@@ -14,5 +14,8 @@
             "@saas/eslint-config/library"
         ]
     },
-    "prettier": "@saas/prettier"
+    "prettier": "@saas/prettier",
+    "dependencies": {
+        "@casl/ability": "^6.7.3"
+    }
 }
