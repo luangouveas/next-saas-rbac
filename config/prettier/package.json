@@ -6,5 +6,10 @@
   "devDependencies": {
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.11"
-  }
+  },
+  "eslintConfig": {
+    "extends": [
+        "@saas/eslint-config/node"
+    ]
+}
 }
