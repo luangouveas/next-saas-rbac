@@ -12,7 +12,7 @@ export async function authenticateWithPassword(app: FastifyInstance) {
     '/sessions/password',
     {
       schema: {
-        tags: ['auth'],
+        tags: ['Auth'],
         summary: 'Authenticate with e-mail & password',
         body: z.object({
           email: z.string().email(),

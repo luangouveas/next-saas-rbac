@@ -14,7 +14,7 @@ export async function deleteProject(app: FastifyInstance) {
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
     .delete(
-      '/organizations/:slug/projects/:projectId',
+      '/organization/:slug/projects/:projectId',
       {
         schema: {
           tags: ['Projects'],
