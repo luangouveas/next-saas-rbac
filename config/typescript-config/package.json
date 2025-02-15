@@ -5,7 +5,8 @@
   "license": "MIT",
   "files": [
     "library.json",
-    "node.json"
+    "node.json",
+    "nextjs.json"
   ],
   "prettier": "@saas/prettier",
     "eslintConfig": {
