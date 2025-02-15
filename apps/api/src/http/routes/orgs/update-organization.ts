@@ -46,7 +46,9 @@ export async function updateOrganization(app: FastifyInstance) {
         const { cannot } = getUserPermissions(userId, membership.role)
 
         if (cannot('update', authOrganization)) {
-          throw new UnauthorizedError('')
+          throw new UnauthorizedError(
+            `You're not allowed to update this organization.`,
+          )
         }
 
         if (domain) {
