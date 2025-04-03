@@ -43,8 +43,9 @@ export async function signUpAction(data: FormData) {
       email,
       password,
     })
+
     return {
-      success: false,
+      success: true,
       message: null,
       errors: null,
     }
