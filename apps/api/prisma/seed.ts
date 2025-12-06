@@ -28,76 +28,19 @@ async function seed() {
     },
   })
 
-  const anotherUser2 = await prisma.user.create({
+  const org = await prisma.organization.create({
     data: {
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      avatarUrl: faker.image.avatarGitHub(),
-      passwordHash,
-    },
-  })
-
-  await prisma.organization.create({
-    data: {
-      name: 'Acme Inc (Admin)',
+      name: 'Acme Inc',
       domain: 'acme.com',
-      slug: 'acme-admin',
+      slug: 'acme-inc',
       avatarUrl: faker.image.avatarGitHub(),
       shouldAttachUsersByDomain: true,
       ownerId: user.id,
-      projects: {
+      units: {
         createMany: {
           data: [
             {
-              name: faker.lorem.words(5),
-              slug: faker.lorem.slug(5),
-              description: faker.lorem.paragraph(),
-              avatarUrl: faker.image.avatarGitHub(),
-              ownerId: faker.helpers.arrayElement([
-                user.id,
-                anotherUser.id,
-                anotherUser2.id,
-              ]),
-            },
-            {
-              name: faker.lorem.words(5),
-              slug: faker.lorem.slug(5),
-              description: faker.lorem.paragraph(),
-              avatarUrl: faker.image.avatarGitHub(),
-              ownerId: faker.helpers.arrayElement([
-                user.id,
-                anotherUser.id,
-                anotherUser2.id,
-              ]),
-            },
-            {
-              name: faker.lorem.words(5),
-              slug: faker.lorem.slug(5),
-              description: faker.lorem.paragraph(),
-              avatarUrl: faker.image.avatarGitHub(),
-              ownerId: faker.helpers.arrayElement([
-                user.id,
-                anotherUser.id,
-                anotherUser2.id,
-              ]),
-            },
-          ],
-        },
-      },
-      members: {
-        createMany: {
-          data: [
-            {
-              userId: user.id,
-              role: 'ADMIN',
-            },
-            {
-              userId: anotherUser.id,
-              role: 'MEMBER',
-            },
-            {
-              userId: anotherUser2.id,
-              role: 'MEMBER',
+              name: 'Unit 1 for Acme Inc',
             },
           ],
         },
@@ -105,136 +48,87 @@ async function seed() {
     },
   })
 
-  await prisma.organization.create({
-    data: {
-      name: 'Acme Inc (Billing)',
-      slug: 'acme-billing',
-      avatarUrl: faker.image.avatarGitHub(),
-      ownerId: user.id,
-      projects: {
-        createMany: {
-          data: [
-            {
-              name: faker.lorem.words(5),
-              slug: faker.lorem.slug(5),
-              description: faker.lorem.paragraph(),
-              avatarUrl: faker.image.avatarGitHub(),
-              ownerId: faker.helpers.arrayElement([
-                user.id,
-                anotherUser.id,
-                anotherUser2.id,
-              ]),
-            },
-            {
-              name: faker.lorem.words(5),
-              slug: faker.lorem.slug(5),
-              description: faker.lorem.paragraph(),
-              avatarUrl: faker.image.avatarGitHub(),
-              ownerId: faker.helpers.arrayElement([
-                user.id,
-                anotherUser.id,
-                anotherUser2.id,
-              ]),
-            },
-            {
-              name: faker.lorem.words(5),
-              slug: faker.lorem.slug(5),
-              description: faker.lorem.paragraph(),
-              avatarUrl: faker.image.avatarGitHub(),
-              ownerId: faker.helpers.arrayElement([
-                user.id,
-                anotherUser.id,
-                anotherUser2.id,
-              ]),
-            },
-          ],
-        },
-      },
-      members: {
-        createMany: {
-          data: [
-            {
-              userId: user.id,
-              role: 'BILLING',
-            },
-            {
-              userId: anotherUser.id,
-              role: 'ADMIN',
-            },
-            {
-              userId: anotherUser2.id,
-              role: 'MEMBER',
-            },
-          ],
-        },
-      },
-    },
+  const units = await prisma.unit.findMany({
+    where: { organizationId: org.id },
   })
 
-  await prisma.organization.create({
-    data: {
-      name: 'Acme Inc (Member)',
-      slug: 'acme-member',
-      avatarUrl: faker.image.avatarGitHub(),
-      ownerId: user.id,
-      projects: {
-        createMany: {
-          data: [
-            {
-              name: faker.lorem.words(5),
-              slug: faker.lorem.slug(5),
-              description: faker.lorem.paragraph(),
-              avatarUrl: faker.image.avatarGitHub(),
-              ownerId: faker.helpers.arrayElement([
-                user.id,
-                anotherUser.id,
-                anotherUser2.id,
-              ]),
-            },
-            {
-              name: faker.lorem.words(5),
-              slug: faker.lorem.slug(5),
-              description: faker.lorem.paragraph(),
-              avatarUrl: faker.image.avatarGitHub(),
-              ownerId: faker.helpers.arrayElement([
-                user.id,
-                anotherUser.id,
-                anotherUser2.id,
-              ]),
-            },
-            {
-              name: faker.lorem.words(5),
-              slug: faker.lorem.slug(5),
-              description: faker.lorem.paragraph(),
-              avatarUrl: faker.image.avatarGitHub(),
-              ownerId: faker.helpers.arrayElement([
-                user.id,
-                anotherUser.id,
-                anotherUser2.id,
-              ]),
-            },
-          ],
+  units.forEach(async (unit) => {
+    await prisma.departament.createMany({
+      data: [
+        {
+          name: faker.person.jobArea(),
+          unitId: unit.id,
         },
-      },
-      members: {
-        createMany: {
-          data: [
-            {
-              userId: user.id,
-              role: 'MEMBER',
-            },
-            {
-              userId: anotherUser.id,
-              role: 'ADMIN',
-            },
-            {
-              userId: anotherUser2.id,
-              role: 'MEMBER',
-            },
-          ],
+        {
+          name: faker.person.jobArea(),
+          unitId: unit.id,
         },
+      ],
+    })
+
+    const departaments = await prisma.departament.findMany({
+      where: { unitId: unit.id },
+    })
+
+    await prisma.member.createMany({
+      data: [
+        {
+          userId: user.id,
+          organizationId: org.id,
+          unitId: units[0].id,
+          departamentId: departaments[0].id,
+          role: 'ADMIN',
+        },
+      ],
+    })
+
+    await prisma.member.createMany({
+      data: [
+        {
+          userId: anotherUser.id,
+          organizationId: org.id,
+          unitId: units[0].id,
+          departamentId: departaments[1].id,
+          role: 'MEMBER',
+        },
+      ],
+    })
+
+    const project = await prisma.project.create({
+      data: {
+        name: faker.lorem.words({ min: 3, max: 5 }),
+        description: faker.lorem.sentence(),
+        slug: faker.lorem.slug(),
+        startDate: new Date().toISOString(),
+        forecastDate: new Date(
+          Date.now() + 20 * 24 * 60 * 60 * 1000,
+        ).toISOString(),
+        status: 'IN_PROGRESS',
+        managerId: user.id,
+        requestingDepartamentId: departaments[0].id,
       },
-    },
+    })
+
+    await prisma.projectStep.createMany({
+      data: [
+        {
+          startDate: faker.date.recent(),
+          forecastDate: faker.date.future(),
+          name: faker.lorem.sentence(10),
+          status: 'IN_PROGRESS',
+          userId: anotherUser.id,
+          projectId: project.id,
+        },
+        {
+          startDate: faker.date.future(),
+          forecastDate: faker.date.future(),
+          name: faker.lorem.sentence(10),
+          status: 'WAITING',
+          userId: anotherUser.id,
+          projectId: project.id,
+        },
+      ],
+    })
   })
 }
 

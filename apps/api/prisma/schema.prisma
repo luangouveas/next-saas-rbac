@@ -21,13 +21,15 @@ model User {
   invites            Invite[]
   member_on          Member[]
   owns_organizations Organization[]
-  owns_projects      Project[]
+  manager_projects   Project[]
+  project_steps      ProjectStep[]
 
   @@map("users")
 }
 
 enum TokenType {
   PASSORD_RECOVER
+  INVITE
 }
 
 model Token {
@@ -43,6 +45,8 @@ model Token {
 
 enum AccountProvider {
   GITHUB
+  GMAIL
+  OUTLOOK
 }
 
 model Account {
@@ -87,6 +91,12 @@ model Member {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String       @map("organization_id")
 
+  unit   Unit   @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId String @map("unit_id")
+
+  departament   Departament @relation(fields: [departamentId], references: [id], onDelete: Cascade)
+  departamentId String      @map("departament_id")
+
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @map("user_id")
 
@@ -107,27 +117,89 @@ model Organization {
   owner   User   @relation(fields: [ownerId], references: [id])
   ownerId String @map("owner_id")
 
-  invites  Invite[]
-  members  Member[]
-  projects Project[]
+  invites Invite[]
+  members Member[]
+  units   Unit[]
 
   @@map("organizations")
 }
 
-model Project {
-  id          String   @id @default(uuid())
-  name        String
-  description String   @unique
-  slug        String   @unique
-  avatarUrl   String?  @map("avatar_url")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+model Unit {
+  id   String @id @default(uuid())
+  name String
 
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String       @map("organization_id")
 
-  owner   User   @relation(fields: [ownerId], references: [id])
-  ownerId String @map("owner_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  members      Member[]
+  departaments Departament[]
+
+  @@map("units")
+}
+
+model Departament {
+  id   String @id @default(uuid())
+  name String
+
+  unit   Unit   @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId String @map("unit_id")
+
+  members            Member[]
+  requested_projects Project[]
+
+  @@map("departaments")
+}
+
+enum ProjectAndStepStatus {
+  IN_PROGRESS
+  STOPPED
+  COMPLETED
+  WAITING
+}
+
+model Project {
+  id           String               @id @default(uuid())
+  name         String
+  description  String
+  slug         String               @unique
+  avatarUrl    String?              @map("avatar_url")
+  startDate    DateTime             @map("start_date")
+  forecastDate DateTime             @map("forecast_date")
+  endDate      DateTime?            @map("end_date")
+  status       ProjectAndStepStatus
+  createdAt    DateTime             @default(now()) @map("created_at")
+  updatedAt    DateTime             @updatedAt @map("updated_at")
+
+  requestingDepartament   Departament @relation(fields: [requestingDepartamentId], references: [id], onDelete: Cascade)
+  requestingDepartamentId String      @map("requesting_departament_id")
+
+  manager   User   @relation(fields: [managerId], references: [id])
+  managerId String @map("manager_id")
+
+  project_steps ProjectStep[]
 
   @@map("projects")
+}
+
+model ProjectStep {
+  id           String               @id @default(uuid())
+  name         String
+  description  String?
+  startDate    DateTime             @map("start_date")
+  forecastDate DateTime             @map("forecast_date")
+  endDate      DateTime?            @map("end_date")
+  status       ProjectAndStepStatus
+  createdAt    DateTime             @default(now()) @map("created_at")
+  updatedAt    DateTime             @updatedAt @map("updated_at")
+
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId String  @map("project_id")
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  @@map("projectSteps")
 }
