@@ -24,8 +24,6 @@ export async function updateOrganization(app: FastifyInstance) {
           security: [{ bearerAuth: [] }],
           body: z.object({
             name: z.string(),
-            domain: z.string().nullish(),
-            shouldAttachUsersByDomain: z.boolean().optional(),
           }),
           params: z.object({
             slug: z.string(),

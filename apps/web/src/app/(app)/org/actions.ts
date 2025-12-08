@@ -8,46 +8,23 @@ import { getCurrentOrg } from '@/auth/auth'
 import { CreateOrganization } from '@/http/create-organization'
 import { updateOrganization } from '@/http/update-organization'
 
-const organizationSchema = z
-  .object({
-    name: z
-      .string()
-      .min(4, { message: 'Please, incluide at least 4 characters.' }),
-    domain: z
-      .string()
-      .nullable()
-      .refine(
-        (value) => {
-          if (value) {
-            const domainRegex = /^[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/
+const organizationSchema = z.object({
+  name: z
+    .string()
+    .min(4, { message: 'Please, incluide at least 4 characters.' }),
+  defaultUnitName: z.string().min(4, {
+    message: 'Please include at leats 4 characters.',
+  }),
+  defaultDepartamentName: z.string().min(4, {
+    message: 'Please include at leats 4 characters.',
+  }),
+})
 
-            return domainRegex.test(value)
-          }
-
-          return true
-        },
-        {
-          message: 'Please, enter a valid domain.',
-        },
-      ),
-    shouldAttachUsersByDomain: z
-      .union([z.literal('on'), z.literal('off'), z.boolean()])
-      .transform((value) => value === true || value === 'on')
-      .default(false),
-  })
-  .refine(
-    (data) => {
-      if (data.shouldAttachUsersByDomain === true && !data.domain) {
-        return false
-      }
-
-      return true
-    },
-    {
-      message: 'Domain is required when auto-join is enabled.',
-      path: ['domain'],
-    },
-  )
+const updateOrganizationSchema = z.object({
+  name: z
+    .string()
+    .min(4, { message: 'Please, incluide at least 4 characters.' }),
+})
 
 export type OrganizationSchema = z.infer<typeof organizationSchema>
 
@@ -60,13 +37,13 @@ export async function createOrganizationAction(data: FormData) {
     return { success: false, message: null, errors }
   }
 
-  const { name, domain, shouldAttachUsersByDomain } = result.data
+  const { name, defaultUnitName, defaultDepartamentName } = result.data
 
   try {
     await CreateOrganization({
       name,
-      domain,
-      shouldAttachUsersByDomain,
+      defaultUnitName,
+      defaultDepartamentName,
     })
 
     revalidateTag('organizations')
@@ -96,7 +73,7 @@ export async function createOrganizationAction(data: FormData) {
 export async function updateOrganizationAction(data: FormData) {
   const currentOrg = await getCurrentOrg()
 
-  const result = organizationSchema.safeParse(Object.fromEntries(data))
+  const result = updateOrganizationSchema.safeParse(Object.fromEntries(data))
 
   if (!result.success) {
     const errors = result.error.flatten().fieldErrors
@@ -104,14 +81,12 @@ export async function updateOrganizationAction(data: FormData) {
     return { success: false, message: null, errors }
   }
 
-  const { name, domain, shouldAttachUsersByDomain } = result.data
+  const { name } = result.data
 
   try {
     await updateOrganization({
       org: currentOrg!,
       name,
-      domain,
-      shouldAttachUsersByDomain,
     })
 
     revalidateTag('organizations')
