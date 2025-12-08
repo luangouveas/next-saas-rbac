@@ -5,41 +5,17 @@ import { z } from 'zod'
 
 import { CreateOrganization } from '@/http/create-organization'
 
-const organizationSchema = z
-  .object({
-    name: z.string().min(4, {
-      message: 'Please include at leats 4 characters.',
-    }),
-    domain: z
-      .string()
-      .nullable()
-      .refine(
-        (value) => {
-          if (value) {
-            const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-            return domainRegex.test(value)
-          }
-          return true
-        },
-        { message: 'Please include a valid domain.' },
-      ),
-    shouldAttachUsersByDomain: z
-      .union([z.literal('on'), z.literal('off'), z.boolean()])
-      .transform((value) => value === 'on' || value === true)
-      .default(false),
-  })
-  .refine(
-    (data) => {
-      if (data.shouldAttachUsersByDomain && !data.domain) {
-        return false
-      }
-      return true
-    },
-    {
-      message: 'Please include a domain if you want to attach users by domain.',
-      path: ['domain'],
-    },
-  )
+const organizationSchema = z.object({
+  name: z.string().min(4, {
+    message: 'Please include at leats 4 characters.',
+  }),
+  defaultUnitName: z.string().min(4, {
+    message: 'Please include at leats 4 characters.',
+  }),
+  defaultDepartamentName: z.string().min(4, {
+    message: 'Please include at leats 4 characters.',
+  }),
+})
 
 export async function createOrganizationAction(data: FormData) {
   const result = organizationSchema.safeParse(Object.fromEntries(data))
@@ -53,13 +29,13 @@ export async function createOrganizationAction(data: FormData) {
     }
   }
 
-  const { name, domain, shouldAttachUsersByDomain } = result.data
+  const { name, defaultUnitName, defaultDepartamentName } = result.data
 
   try {
     await CreateOrganization({
       name,
-      domain,
-      shouldAttachUsersByDomain,
+      defaultUnitName,
+      defaultDepartamentName,
     })
 
     return {

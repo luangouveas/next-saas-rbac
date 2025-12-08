@@ -4,7 +4,6 @@ import { AlertTriangle, Loader2 } from 'lucide-react'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useFormState } from '@/hooks/use-form-state'
@@ -49,42 +48,21 @@ export function OrganizationForm() {
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="domain">E-mail domain</Label>
-        <Input
-          name="domain"
-          type="text"
-          id="domain"
-          inputMode="url"
-          placeholder="example.com"
-        />
-        {errors?.domain && (
+        <Label htmlFor="defaultUnitName">Default Unit name</Label>
+        <Input name="defaultUnitName" id="defaultUnitName" />
+        {errors?.defaultUnitName && (
           <p className="text-xs font-medium text-red-500 dark:text-red-400">
-            {errors.domain[0]}
+            {errors.defaultUnitName[0]}
           </p>
         )}
       </div>
 
       <div className="space-y-1">
-        <div className="flex items-start space-x-2">
-          <div className="translate-y-0.5">
-            <Checkbox
-              name="shouldAttachUsersByDomain"
-              id="shouldAttachUsersByDomain"
-            />
-          </div>
-          <label htmlFor="shouldAttachUsersByDomain" className="space-y-1">
-            <span className="text-sm font-medium leading-none">
-              Auto-join new members
-            </span>
-            <p className="text-sm text-muted-foreground">
-              This will automatically invite all members with same e-mail domain
-              to this organization.
-            </p>
-          </label>
-        </div>
-        {errors?.shouldAttachUsersByDomain && (
+        <Label htmlFor="defaultDepartamentName">Default Departament name</Label>
+        <Input name="defaultDepartamentName" id="defaultDepartamentName" />
+        {errors?.defaultDepartamentName && (
           <p className="text-xs font-medium text-red-500 dark:text-red-400">
-            {errors.shouldAttachUsersByDomain[0]}
+            {errors.defaultDepartamentName[0]}
           </p>
         )}
       </div>
