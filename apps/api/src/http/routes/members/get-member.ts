@@ -1,4 +1,4 @@
-import { roleSchema } from '@saas/auth'
+import { memberSchema, roleSchema } from '@saas/auth'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
@@ -32,6 +32,14 @@ export async function getMembers(app: FastifyInstance) {
                   name: z.string().nullable(),
                   email: z.string().email(),
                   avatarUrl: z.string().url().nullable(),
+                  unit: z.object({
+                    id: z.string(),
+                    name: z.string(),
+                  }),
+                  departament: z.object({
+                    id: z.string(),
+                    name: z.string(),
+                  }),
                 }),
               ),
             }),
@@ -40,13 +48,15 @@ export async function getMembers(app: FastifyInstance) {
       },
       async (request, reply) => {
         const { slug } = request.params
-        const userId = await request.getCurrentUserId()
-        const { organization, membership } =
-          await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const { cannot } = getUserPermissions(userMembership)
 
-        if (cannot('get', 'User')) {
+        const authMember = memberSchema.parse({
+          organizationId: userMembership.organizationId,
+        })
+
+        if (cannot('get', authMember)) {
           throw new UnauthorizedError(
             `You're not allowed to see organization members.`,
           )
@@ -64,9 +74,21 @@ export async function getMembers(app: FastifyInstance) {
                 avatarUrl: true,
               },
             },
+            unit: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            departament: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
           where: {
-            organizationId: organization.id,
+            organizationId: userMembership.organizationId,
           },
           orderBy: {
             role: 'asc',
@@ -74,10 +96,12 @@ export async function getMembers(app: FastifyInstance) {
         })
 
         const membersWithRoles = members.map(
-          ({ user: { id: userId, ...user }, ...member }) => {
+          ({ user: { id: userId, ...user }, departament, unit, ...member }) => {
             return {
               ...user,
               ...member,
+              unit,
+              departament,
               userId,
             }
           },

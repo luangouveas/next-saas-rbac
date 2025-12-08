@@ -31,14 +31,12 @@ export async function deleteProject(app: FastifyInstance) {
       },
       async (request, reply) => {
         const { slug, projectId } = request.params
-        const userId = await request.getCurrentUserId()
-        const { organization, membership } =
-          await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
 
         const project = await prisma.project.findUnique({
           where: {
             id: projectId,
-            organizationId: organization.id,
+            organizationId: userMembership.organizationOwnerId,
           },
         })
 
@@ -46,7 +44,7 @@ export async function deleteProject(app: FastifyInstance) {
           throw new BadRequestError('Project not found.')
         }
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const { cannot } = getUserPermissions(userMembership)
         const authProject = projectSchema.parse(project)
 
         if (cannot('delete', authProject)) {

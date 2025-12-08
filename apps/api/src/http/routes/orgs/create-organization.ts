@@ -21,8 +21,8 @@ export async function createOrganization(app: FastifyInstance) {
           security: [{ bearerAuth: [] }],
           body: z.object({
             name: z.string(),
-            domain: z.string().nullish(),
-            shouldAttachUsersByDomain: z.boolean().optional(),
+            defaultUnitName: z.string(),
+            defaultDepartamentName: z.string(),
           }),
           response: {
             201: z.object({
@@ -33,35 +33,51 @@ export async function createOrganization(app: FastifyInstance) {
       },
       async (request, reply) => {
         const userId = await request.getCurrentUserId()
-        const { name, domain, shouldAttachUsersByDomain } = request.body
+        const { name, defaultUnitName, defaultDepartamentName } = request.body
 
-        if (domain) {
-          const organizationByDomain = await prisma.organization.findUnique({
-            where: {
-              domain,
-            },
-          })
+        const slug = createSlug(name)
 
-          if (organizationByDomain) {
-            throw new BadRequestError(
-              'Another organization with same domain already exists.',
-            )
-          }
+        const organizationBySlug = await prisma.organization.findUnique({
+          where: {
+            slug,
+          },
+        })
+
+        if (organizationBySlug) {
+          throw new BadRequestError(
+            'Another organization with same name already exists.',
+          )
         }
 
         const organization = await prisma.organization.create({
           data: {
             name,
-            slug: createSlug(name),
-            domain,
-            shouldAttachUsersByDomain,
+            slug,
             ownerId: userId,
-            members: {
-              create: {
-                userId,
-                role: 'ADMIN',
-              },
-            },
+          },
+        })
+
+        const unit = await prisma.unit.create({
+          data: {
+            organizationId: organization.id,
+            name: defaultUnitName,
+          },
+        })
+
+        const departament = await prisma.departament.create({
+          data: {
+            unitId: unit.id,
+            name: defaultDepartamentName,
+          },
+        })
+
+        await prisma.member.create({
+          data: {
+            userId,
+            role: 'ADMIN',
+            unitId: unit.id,
+            departamentId: departament.id,
+            organizationId: organization.id,
           },
         })
 

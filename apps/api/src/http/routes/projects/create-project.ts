@@ -1,3 +1,4 @@
+import { projectAndStepStatusSchema } from '@saas/auth'
 import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
@@ -23,6 +24,13 @@ export async function createProject(app: FastifyInstance) {
           body: z.object({
             name: z.string(),
             description: z.string(),
+            startDate: z.string(),
+            forecastDate: z.string(),
+            endDate: z.string().optional(),
+            status: projectAndStepStatusSchema.optional(),
+            requestingDepartamentId: z.string(),
+            managerId: z.string(),
+            agentId: z.string().optional(),
           }),
           params: z.object({
             slug: z.string(),
@@ -36,11 +44,9 @@ export async function createProject(app: FastifyInstance) {
       },
       async (request, reply) => {
         const { slug } = request.params
-        const userId = await request.getCurrentUserId()
-        const { organization, membership } =
-          await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const { cannot } = getUserPermissions(userMembership)
 
         if (cannot('create', 'Project')) {
           throw new UnauthorizedError(
@@ -48,15 +54,31 @@ export async function createProject(app: FastifyInstance) {
           )
         }
 
-        const { name, description } = request.body
+        const {
+          name,
+          description,
+          forecastDate,
+          startDate,
+          endDate,
+          status,
+          requestingDepartamentId,
+          managerId,
+          agentId,
+        } = request.body
 
         const project = await prisma.project.create({
           data: {
             name,
             slug: createSlug(name),
             description,
-            ownerId: userId,
-            organizationId: organization.id,
+            organizationId: userMembership.organizationId,
+            status: status ?? 'IN_PROGRESS',
+            forecastDate,
+            startDate,
+            endDate,
+            requestingDepartamentId,
+            managerId,
+            agentId,
           },
         })
 

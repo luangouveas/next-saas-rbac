@@ -44,11 +44,9 @@ export async function getInvites(app: FastifyInstance) {
       },
       async (request) => {
         const { slug } = request.params
-        const userId = await request.getCurrentUserId()
-        const { organization, membership } =
-          await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const { cannot } = getUserPermissions(userMembership)
 
         if (cannot('get', 'Invite')) {
           throw new UnauthorizedError(
@@ -58,7 +56,7 @@ export async function getInvites(app: FastifyInstance) {
 
         const invites = await prisma.invite.findMany({
           where: {
-            organizationId: organization.id,
+            organizationId: userMembership.organizationId,
           },
           select: {
             id: true,

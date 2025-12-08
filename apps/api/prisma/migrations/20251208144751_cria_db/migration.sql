@@ -51,6 +51,8 @@ CREATE TABLE "invites" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "author_id" TEXT,
     "organization_id" TEXT NOT NULL,
+    "unit_id" TEXT NOT NULL,
+    "departament_id" TEXT NOT NULL,
 
     CONSTRAINT "invites_pkey" PRIMARY KEY ("id")
 );
@@ -72,8 +74,6 @@ CREATE TABLE "organizations" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
-    "domain" TEXT,
-    "should_attach_users_by_domain" BOOLEAN NOT NULL DEFAULT false,
     "avatar_url" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -115,8 +115,10 @@ CREATE TABLE "projects" (
     "status" "ProjectAndStepStatus" NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
+    "organization_id" TEXT NOT NULL,
     "requesting_departament_id" TEXT NOT NULL,
     "manager_id" TEXT NOT NULL,
+    "agent_id" TEXT,
 
     CONSTRAINT "projects_pkey" PRIMARY KEY ("id")
 );
@@ -160,9 +162,6 @@ CREATE UNIQUE INDEX "members_organization_id_user_id_key" ON "members"("organiza
 CREATE UNIQUE INDEX "organizations_slug_key" ON "organizations"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "organizations_domain_key" ON "organizations"("domain");
-
--- CreateIndex
 CREATE UNIQUE INDEX "projects_slug_key" ON "projects"("slug");
 
 -- AddForeignKey
@@ -176,6 +175,12 @@ ALTER TABLE "invites" ADD CONSTRAINT "invites_author_id_fkey" FOREIGN KEY ("auth
 
 -- AddForeignKey
 ALTER TABLE "invites" ADD CONSTRAINT "invites_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "organizations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "invites" ADD CONSTRAINT "invites_unit_id_fkey" FOREIGN KEY ("unit_id") REFERENCES "units"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "invites" ADD CONSTRAINT "invites_departament_id_fkey" FOREIGN KEY ("departament_id") REFERENCES "departaments"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "members" ADD CONSTRAINT "members_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "organizations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -199,10 +204,16 @@ ALTER TABLE "units" ADD CONSTRAINT "units_organization_id_fkey" FOREIGN KEY ("or
 ALTER TABLE "departaments" ADD CONSTRAINT "departaments_unit_id_fkey" FOREIGN KEY ("unit_id") REFERENCES "units"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "projects" ADD CONSTRAINT "projects_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "organizations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "projects" ADD CONSTRAINT "projects_requesting_departament_id_fkey" FOREIGN KEY ("requesting_departament_id") REFERENCES "departaments"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "projects" ADD CONSTRAINT "projects_manager_id_fkey" FOREIGN KEY ("manager_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "projects" ADD CONSTRAINT "projects_agent_id_fkey" FOREIGN KEY ("agent_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "projectSteps" ADD CONSTRAINT "projectSteps_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

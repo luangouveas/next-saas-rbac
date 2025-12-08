@@ -13,15 +13,36 @@ export const permissions: Record<Role, PermissionsByRole> = {
   ADMIN(user, { can, cannot }) {
     can('manage', 'all')
 
-    cannot(['transfer_ownership', 'update'], 'Organization')
-    can(['transfer_ownership', 'update'], 'Organization', {
+    cannot(['transfer_ownership', 'update', 'delete'], 'Organization')
+    can(['transfer_ownership', 'update', 'delete'], 'Organization', {
       ownerId: { $eq: user.id },
     })
+
+    cannot(
+      ['manage'],
+      ['Departament', 'Unit', 'Member', 'Project', 'ProjectStep'],
+    )
+    can(
+      ['manage'],
+      ['Departament', 'Unit', 'Member', 'Project', 'ProjectStep'],
+      {
+        organizationId: { $eq: user.organizationId },
+      },
+    )
   },
   MEMBER(user, { can }) {
-    can('get', 'User')
-    can(['create', 'get'], 'Project')
-    can(['update', 'delete'], 'Project', { ownerId: { $eq: user.id } })
+    can('get', ['Departament', 'Unit', 'Member'], {
+      organizationId: { $eq: user.organizationId },
+    })
+
+    can(['create', 'get'], 'Project', {
+      requestingDepartamentId: { $eq: user.departamentId },
+    })
+
+    can(['update', 'delete'], 'Project', {
+      requestingDepartamentId: { $eq: user.departamentId },
+      status: { $in: ['IN_PROGRESS', 'STOPPED', 'WAITING'] },
+    })
   },
   BILLING(_, { can }) {
     can('manage', 'Billing')

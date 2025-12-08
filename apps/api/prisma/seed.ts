@@ -31,10 +31,8 @@ async function seed() {
   const org = await prisma.organization.create({
     data: {
       name: 'Acme Inc',
-      domain: 'acme.com',
       slug: 'acme-inc',
       avatarUrl: faker.image.avatarGitHub(),
-      shouldAttachUsersByDomain: true,
       ownerId: user.id,
       units: {
         createMany: {
@@ -105,6 +103,7 @@ async function seed() {
         ).toISOString(),
         status: 'IN_PROGRESS',
         managerId: user.id,
+        organizationId: org.id,
         requestingDepartamentId: departaments[0].id,
       },
     })

@@ -24,6 +24,8 @@ export async function createInvite(app: FastifyInstance) {
           body: z.object({
             email: z.string().email(),
             role: roleSchema,
+            unitId: z.string(),
+            departamentId: z.string(),
           }),
           params: z.object({
             slug: z.string(),
@@ -38,10 +40,9 @@ export async function createInvite(app: FastifyInstance) {
       async (request, reply) => {
         const { slug } = request.params
         const userId = await request.getCurrentUserId()
-        const { organization, membership } =
-          await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const { cannot } = getUserPermissions(userMembership)
 
         if (cannot('create', 'Invite')) {
           throw new UnauthorizedError(
@@ -49,23 +50,13 @@ export async function createInvite(app: FastifyInstance) {
           )
         }
 
-        const { email, role } = request.body
-        const [, domain] = email
-
-        if (
-          organization.shouldAttachUsersByDomain &&
-          organization.domain === domain
-        ) {
-          throw new BadRequestError(
-            `Users with "${domain}" will join your organization automatically on login.`,
-          )
-        }
+        const { email, role, unitId, departamentId } = request.body
 
         const inviteWithSameEmail = await prisma.invite.findUnique({
           where: {
             email_organizationId: {
               email,
-              organizationId: organization.id,
+              organizationId: userMembership.organizationId,
             },
           },
         })
@@ -78,7 +69,7 @@ export async function createInvite(app: FastifyInstance) {
 
         const memberWithSameEmail = await prisma.member.findFirst({
           where: {
-            organizationId: organization.id,
+            organizationId: userMembership.organizationId,
             user: {
               email,
             },
@@ -93,7 +84,9 @@ export async function createInvite(app: FastifyInstance) {
 
         const invite = await prisma.invite.create({
           data: {
-            organizationId: organization.id,
+            organizationId: userMembership.organizationId,
+            unitId,
+            departamentId,
             email,
             role,
             authorId: userId,

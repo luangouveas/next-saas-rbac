@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { auth } from '@/http/middlewares/auth'
 import { prisma } from '@/lib/prisma'
+import { createSlug } from '@/utils/create-slug'
 import { getUserPermissions } from '@/utils/get-user-permissions'
 
 import { BadRequestError } from '../_errors/bad-request-error'
@@ -30,20 +31,28 @@ export async function updateOrganization(app: FastifyInstance) {
             slug: z.string(),
           }),
           response: {
-            204: z.null(),
+            204: z.object({
+              organization: z.object({
+                id: z.string(),
+                name: z.string(),
+                slug: z.string(),
+              }),
+            }),
           },
         },
       },
       async (request, reply) => {
-        const { name, domain, shouldAttachUsersByDomain } = request.body
+        const { name } = request.body
         const { slug } = request.params
-        const userId = await request.getCurrentUserId()
-        const { membership, organization } =
-          await request.getUserMembership(slug)
 
-        const authOrganization = organizationSchema.parse(organization)
+        const userMembership = await request.getUserMembership(slug)
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const { cannot } = getUserPermissions(userMembership)
+
+        const authOrganization = organizationSchema.parse({
+          id: userMembership.organizationId,
+          ownerId: userMembership.organizationOwnerId,
+        })
 
         if (cannot('update', authOrganization)) {
           throw new UnauthorizedError(
@@ -51,35 +60,37 @@ export async function updateOrganization(app: FastifyInstance) {
           )
         }
 
-        if (domain) {
-          const organizationByDomain = await prisma.organization.findFirst({
-            where: {
-              domain,
-              id: {
-                not: organization.id,
-              },
-            },
-          })
+        const newSlug = createSlug(name)
 
-          if (organizationByDomain) {
-            throw new BadRequestError(
-              'Another organization with same domain already exists.',
-            )
-          }
-        }
-
-        await prisma.organization.update({
+        const organizationBySlug = await prisma.organization.findUnique({
           where: {
-            id: organization.id,
-          },
-          data: {
-            name,
-            domain,
-            shouldAttachUsersByDomain,
+            slug: newSlug,
           },
         })
 
-        return reply.status(204).send()
+        if (organizationBySlug) {
+          throw new BadRequestError(
+            'Another organization with same name already exists.',
+          )
+        }
+
+        const organization = await prisma.organization.update({
+          where: {
+            id: userMembership.organizationId,
+          },
+          data: {
+            name,
+            slug: newSlug,
+          },
+        })
+
+        return reply.status(204).send({
+          organization: {
+            id: organization.id,
+            name: organization.name,
+            slug: organization.slug,
+          },
+        })
       },
     )
 }

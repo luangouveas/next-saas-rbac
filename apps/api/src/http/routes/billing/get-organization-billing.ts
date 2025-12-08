@@ -42,11 +42,10 @@ export async function getOrganizationBilling(app: FastifyInstance) {
       },
       async (request) => {
         const { slug } = request.params
-        const userId = await request.getCurrentUserId()
-        const { organization, membership } =
-          await request.getUserMembership(slug)
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const userMembership = await request.getUserMembership(slug)
+
+        const { cannot } = getUserPermissions(userMembership)
 
         if (cannot('get', 'Billing')) {
           throw new UnauthorizedError(
@@ -57,13 +56,17 @@ export async function getOrganizationBilling(app: FastifyInstance) {
         const [amountOfMembers, amountOfProjects] = await Promise.all([
           prisma.member.count({
             where: {
-              organizationId: organization.id,
+              organizationId: userMembership.organizationId,
               role: { not: 'BILLING' },
             },
           }),
           prisma.project.count({
             where: {
-              organizationId: organization.id,
+              requestingDepartament: {
+                unit: {
+                  organizationId: userMembership.organizationId,
+                },
+              },
             },
           }),
         ])

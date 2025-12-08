@@ -33,11 +33,9 @@ export async function updateMember(app: FastifyInstance) {
       },
       async (request, reply) => {
         const { slug, memberId } = request.params
-        const userId = await request.getCurrentUserId()
-        const { organization, membership } =
-          await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const { cannot } = getUserPermissions(userMembership)
 
         if (cannot('update', 'User')) {
           throw new UnauthorizedError(
@@ -50,7 +48,7 @@ export async function updateMember(app: FastifyInstance) {
         await prisma.member.update({
           where: {
             id: memberId,
-            organizationId: organization.id,
+            organizationId: userMembership.organizationId,
           },
           data: {
             role,

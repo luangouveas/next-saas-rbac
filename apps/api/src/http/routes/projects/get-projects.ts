@@ -1,3 +1,4 @@
+import { projectAndStepStatusSchema } from '@saas/auth'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
@@ -31,13 +32,29 @@ export async function getProjects(app: FastifyInstance) {
                   slug: z.string(),
                   avatarUrl: z.string().url().nullable(),
                   organizationId: z.string().uuid(),
-                  ownerId: z.string().uuid(),
                   createdAt: z.date(),
-                  owner: z.object({
+                  startDate: z.date(),
+                  forecastDate: z.date(),
+                  endDate: z.date().nullable(),
+                  status: projectAndStepStatusSchema.nullable(),
+                  requestingDepartament: z.object({
                     id: z.string().uuid(),
                     name: z.string().nullable(),
+                  }),
+                  manager: z.object({
+                    id: z.string().uuid(),
+                    name: z.string().nullable(),
+                    email: z.string(),
                     avatarUrl: z.string().url().nullable(),
                   }),
+                  agent: z
+                    .object({
+                      id: z.string().uuid(),
+                      name: z.string().nullable(),
+                      email: z.string(),
+                      avatarUrl: z.string().url().nullable(),
+                    })
+                    .nullable(),
                 }),
               ),
             }),
@@ -46,11 +63,9 @@ export async function getProjects(app: FastifyInstance) {
       },
       async (request, reply) => {
         const { slug } = request.params
-        const userId = await request.getCurrentUserId()
-        const { organization, membership } =
-          await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const { cannot } = getUserPermissions(userMembership)
 
         if (cannot('get', 'Project')) {
           throw new UnauthorizedError(
@@ -64,21 +79,38 @@ export async function getProjects(app: FastifyInstance) {
             name: true,
             description: true,
             slug: true,
-            ownerId: true,
             avatarUrl: true,
             organizationId: true,
             createdAt: true,
-            owner: {
+            startDate: true,
+            forecastDate: true,
+            endDate: true,
+            status: true,
+            requestingDepartament: {
               select: {
                 id: true,
                 name: true,
-                email: true,
+              },
+            },
+            manager: {
+              select: {
+                id: true,
                 avatarUrl: true,
+                email: true,
+                name: true,
+              },
+            },
+            agent: {
+              select: {
+                id: true,
+                avatarUrl: true,
+                email: true,
+                name: true,
               },
             },
           },
           where: {
-            organizationId: organization.id,
+            organizationId: userMembership.organizationId,
           },
           orderBy: {
             createdAt: 'desc',

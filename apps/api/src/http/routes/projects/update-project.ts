@@ -1,4 +1,4 @@
-import { projectSchema } from '@saas/auth'
+import { projectAndStepStatusSchema, projectSchema } from '@saas/auth'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
@@ -23,6 +23,13 @@ export async function updateProject(app: FastifyInstance) {
           body: z.object({
             name: z.string(),
             description: z.string(),
+            startDate: z.string(),
+            forecastDate: z.string(),
+            endDate: z.string().optional(),
+            status: projectAndStepStatusSchema,
+            agentId: z.string().optional(),
+            requestingDepartamentId: z.string(),
+            managerId: z.string(),
           }),
           params: z.object({
             slug: z.string(),
@@ -35,14 +42,12 @@ export async function updateProject(app: FastifyInstance) {
       },
       async (request, reply) => {
         const { slug, projectId } = request.params
-        const userId = await request.getCurrentUserId()
-        const { organization, membership } =
-          await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
 
         const project = await prisma.project.findUnique({
           where: {
             id: projectId,
-            organizationId: organization.id,
+            organizationId: userMembership.organizationId,
           },
         })
 
@@ -50,7 +55,7 @@ export async function updateProject(app: FastifyInstance) {
           throw new BadRequestError('Project not found.')
         }
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const { cannot } = getUserPermissions(userMembership)
         const authProject = projectSchema.parse(project)
 
         if (cannot('update', authProject)) {
@@ -59,7 +64,17 @@ export async function updateProject(app: FastifyInstance) {
           )
         }
 
-        const { name, description } = request.body
+        const {
+          name,
+          description,
+          forecastDate,
+          managerId,
+          requestingDepartamentId,
+          startDate,
+          agentId,
+          endDate,
+          status,
+        } = request.body
 
         await prisma.project.update({
           where: {
@@ -68,6 +83,13 @@ export async function updateProject(app: FastifyInstance) {
           data: {
             name,
             description,
+            forecastDate,
+            managerId,
+            requestingDepartamentId,
+            startDate,
+            agentId,
+            endDate,
+            status,
           },
         })
 

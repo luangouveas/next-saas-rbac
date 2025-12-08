@@ -1,12 +1,10 @@
 import 'fastify'
 
-import { Member, Organization } from '@prisma/client'
+import { UserPermissions } from '@/utils/get-user-permissions'
 
 declare module 'fastify' {
   export interface FastifyRequest {
     getCurrentUserId(): Promise<string>
-    getUserMembership(
-      slug: string,
-    ): Promise<{ organization: Organization; membership: Member }>
+    getUserMembership(slug: string): Promise<UserPermissions>
   }
 }

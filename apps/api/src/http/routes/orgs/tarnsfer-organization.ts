@@ -35,13 +35,13 @@ export async function transferOrganization(app: FastifyInstance) {
       async (request, reply) => {
         const { transferToUserId } = request.body
         const { slug } = request.params
-        const userId = await request.getCurrentUserId()
-        const { membership, organization } =
-          await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
 
-        const authOrganization = organizationSchema.parse(organization)
-
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const { cannot } = getUserPermissions(userMembership)
+        const authOrganization = organizationSchema.parse({
+          id: userMembership.organizationId,
+          ownerId: userMembership.organizationOwnerId,
+        })
 
         if (cannot('transfer_ownership', authOrganization)) {
           throw new UnauthorizedError(
@@ -52,7 +52,7 @@ export async function transferOrganization(app: FastifyInstance) {
         const transferToMembership = await prisma.member.findUnique({
           where: {
             organizationId_userId: {
-              organizationId: organization.id,
+              organizationId: userMembership.organizationId,
               userId: transferToUserId,
             },
           },
@@ -68,7 +68,7 @@ export async function transferOrganization(app: FastifyInstance) {
           prisma.member.update({
             where: {
               organizationId_userId: {
-                organizationId: organization.id,
+                organizationId: userMembership.organizationId,
                 userId: transferToUserId,
               },
             },
@@ -78,7 +78,7 @@ export async function transferOrganization(app: FastifyInstance) {
           }),
 
           prisma.organization.update({
-            where: { id: organization.id },
+            where: { id: userMembership.organizationId },
             data: { ownerId: transferToUserId },
           }),
         ])

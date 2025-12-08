@@ -3,6 +3,10 @@ import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 
 import { auth } from '@/http/middlewares/auth'
+import { prisma } from '@/lib/prisma'
+import { getUserPermissions } from '@/utils/get-user-permissions'
+
+import { UnauthorizedError } from '../_errors/unauthorized-error'
 
 export async function getOrganization(app: FastifyInstance) {
   app
@@ -24,8 +28,6 @@ export async function getOrganization(app: FastifyInstance) {
                 id: z.string().uuid(),
                 name: z.string(),
                 slug: z.string(),
-                domain: z.string().nullable(),
-                shouldAttachUsersByDomain: z.boolean(),
                 avatarUrl: z.string().url().nullable(),
                 createdAt: z.date(),
                 updatedAt: z.date(),
@@ -37,10 +39,23 @@ export async function getOrganization(app: FastifyInstance) {
       },
       async (request) => {
         const { slug } = request.params
-        const { organization } = await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
+        const { cannot } = getUserPermissions(userMembership)
+
+        if (cannot('get', 'Organization')) {
+          throw new UnauthorizedError(
+            `You're not allowed to see organization datails.`,
+          )
+        }
+
+        const organization = await prisma.organization.findUnique({
+          where: {
+            id: userMembership.organizationId,
+          },
+        })
 
         return {
-          organization,
+          organization: organization!,
         }
       },
     )

@@ -59,6 +59,8 @@ export async function acceptInvite(app: FastifyInstance) {
               userId,
               organizationId: invite.organizationId,
               role: invite.role,
+              departamentId: invite.departamentId,
+              unitId: invite.unitId,
             },
           }),
 

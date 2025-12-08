@@ -30,15 +30,16 @@ export async function shutdownOrganization(app: FastifyInstance) {
       },
       async (request, reply) => {
         const { slug } = request.params
-        const userId = await request.getCurrentUserId()
-        const { membership, organization } =
-          await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
 
-        const authOrganization = organizationSchema.parse(organization)
+        const { cannot } = getUserPermissions(userMembership)
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const authOrganization = organizationSchema.parse({
+          id: userMembership.organizationId,
+          ownerId: userMembership.organizationOwnerId,
+        })
 
-        if (cannot('update', authOrganization)) {
+        if (cannot('delete', authOrganization)) {
           throw new UnauthorizedError(
             `You're not allowed to shutdown this organization.`,
           )
@@ -46,7 +47,7 @@ export async function shutdownOrganization(app: FastifyInstance) {
 
         await prisma.organization.delete({
           where: {
-            id: organization.id,
+            id: userMembership.organizationId,
           },
         })
 

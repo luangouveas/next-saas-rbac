@@ -29,6 +29,8 @@ export const auth = fastifyPlugin(async (app: FastifyInstance) => {
         },
         include: {
           organization: true,
+          unit: true,
+          departament: true,
         },
       })
 
@@ -36,11 +38,14 @@ export const auth = fastifyPlugin(async (app: FastifyInstance) => {
         throw new UnauthorizedError(`You're not a member of this organization.`)
       }
 
-      const { organization, ...membership } = member
-
       return {
-        organization,
-        membership,
+        id: member.id,
+        userId: member.userId,
+        role: member.role,
+        departamentId: member.departamentId,
+        organizationId: member.organizationId,
+        organizationOwnerId: member.organization.ownerId,
+        unitId: member.unitId,
       }
     }
   })

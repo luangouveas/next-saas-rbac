@@ -9,15 +9,20 @@ import { z } from 'zod'
 import { User } from './models/user'
 import { permissions } from './permissions'
 import { billingSubject } from './subjects/billing'
+import { departamentSubject } from './subjects/departament'
 import { inviteSubject } from './subjects/invite'
+import { memberSubject } from './subjects/member'
 import { organizationSubject } from './subjects/organization'
-import { projectSubject } from './subjects/project'
+import { projectStepSubject, projectSubject } from './subjects/project'
+import { unitSubject } from './subjects/unit'
 import { userSubject } from './subjects/user'
 
 export * from './models/organization'
 export * from './models/project'
 export * from './models/user'
+export * from './models/member'
 export * from './roles'
+export * from './projectAndStepStatus'
 
 const appAbilitiesSchema = z.union([
   projectSubject,
@@ -25,6 +30,10 @@ const appAbilitiesSchema = z.union([
   organizationSubject,
   inviteSubject,
   billingSubject,
+  memberSubject,
+  departamentSubject,
+  unitSubject,
+  projectStepSubject,
   z.tuple([z.literal('manage'), z.literal('all')]),
 ])
 

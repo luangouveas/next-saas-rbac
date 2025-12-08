@@ -21,8 +21,9 @@ model User {
   invites            Invite[]
   member_on          Member[]
   owns_organizations Organization[]
-  manager_projects   Project[]
+  manager_projects   Project[]      @relation("manager_user_project")
   project_steps      ProjectStep[]
+  agent_projects     Project[]      @relation("agente_user_project")
 
   @@map("users")
 }
@@ -79,6 +80,12 @@ model Invite {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String       @map("organization_id")
 
+  unit   Unit   @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId String @map("unit_id")
+
+  departament   Departament @relation(fields: [departamentId], references: [id], onDelete: Cascade)
+  departamentId String      @map("departament_id")
+
   @@unique([email, organizationId])
   @@index([email])
   @@map("invites")
@@ -105,21 +112,20 @@ model Member {
 }
 
 model Organization {
-  id                        String   @id @default(uuid())
-  name                      String
-  slug                      String   @unique
-  domain                    String?  @unique
-  shouldAttachUsersByDomain Boolean  @default(false) @map("should_attach_users_by_domain")
-  avatarUrl                 String?  @map("avatar_url")
-  createdAt                 DateTime @default(now()) @map("created_at")
-  updatedAt                 DateTime @updatedAt @map("updated_at")
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   owner   User   @relation(fields: [ownerId], references: [id])
   ownerId String @map("owner_id")
 
-  invites Invite[]
-  members Member[]
-  units   Unit[]
+  invites  Invite[]
+  members  Member[]
+  units    Unit[]
+  projects Project[]
 
   @@map("organizations")
 }
@@ -136,6 +142,7 @@ model Unit {
 
   members      Member[]
   departaments Departament[]
+  invites      Invite[]
 
   @@map("units")
 }
@@ -149,6 +156,7 @@ model Departament {
 
   members            Member[]
   requested_projects Project[]
+  invites            Invite[]
 
   @@map("departaments")
 }
@@ -173,11 +181,17 @@ model Project {
   createdAt    DateTime             @default(now()) @map("created_at")
   updatedAt    DateTime             @updatedAt @map("updated_at")
 
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String       @map("organization_id")
+
   requestingDepartament   Departament @relation(fields: [requestingDepartamentId], references: [id], onDelete: Cascade)
   requestingDepartamentId String      @map("requesting_departament_id")
 
-  manager   User   @relation(fields: [managerId], references: [id])
+  manager   User   @relation("manager_user_project", fields: [managerId], references: [id])
   managerId String @map("manager_id")
+
+  agent   User?   @relation("agente_user_project", fields: [agentId], references: [id])
+  agentId String? @map("agent_id")
 
   project_steps ProjectStep[]
 

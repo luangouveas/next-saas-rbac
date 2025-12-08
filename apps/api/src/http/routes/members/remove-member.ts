@@ -30,11 +30,9 @@ export async function removeMember(app: FastifyInstance) {
       },
       async (request, reply) => {
         const { slug, memberId } = request.params
-        const userId = await request.getCurrentUserId()
-        const { organization, membership } =
-          await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const { cannot } = getUserPermissions(userMembership)
 
         if (cannot('delete', 'User')) {
           throw new UnauthorizedError(
@@ -45,7 +43,7 @@ export async function removeMember(app: FastifyInstance) {
         await prisma.member.delete({
           where: {
             id: memberId,
-            organizationId: organization.id,
+            organizationId: userMembership.organizationId,
           },
         })
 

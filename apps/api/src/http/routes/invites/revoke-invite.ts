@@ -30,11 +30,9 @@ export async function revokeInvite(app: FastifyInstance) {
       },
       async (request, reply) => {
         const { slug, inviteId } = request.params
-        const userId = await request.getCurrentUserId()
-        const { organization, membership } =
-          await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const { cannot } = getUserPermissions(userMembership)
 
         if (cannot('delete', 'Invite')) {
           throw new UnauthorizedError(`You're not allowed to delete an invite.`)
@@ -43,7 +41,7 @@ export async function revokeInvite(app: FastifyInstance) {
         const invite = await prisma.invite.findUnique({
           where: {
             id: inviteId,
-            organizationId: organization.id,
+            organizationId: userMembership.organizationId,
           },
         })
 
