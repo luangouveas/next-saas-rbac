@@ -81,20 +81,18 @@ export default function SignInForm() {
             'Sign in with e-mail'
           )}
         </Button>
-
-        <Button variant="link" className="w-full" size="sm" asChild>
-          <Link href="/auth/sign-up">Create new account</Link>
-        </Button>
       </form>
+
+      {/*
 
       <Separator />
 
-      <form action={signInWithGithub}>
+       <form action={signInWithGithub}>
         <Button type="submit" className="w-full" variant="outline">
           <Image src={githubIcon} alt="" className="mr-2 size-4 dark:invert" />
           Sign in with GitHub
         </Button>
-      </form>
+      </form> */}
     </div>
   )
 }
