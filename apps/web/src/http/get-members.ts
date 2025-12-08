@@ -10,6 +10,14 @@ interface GetMembersResponse {
     name: string | null
     email: string
     avatarUrl: string | null
+    unit: {
+      id: string
+      name: string
+    }
+    departament: {
+      id: string
+      name: string
+    }
   }[]
 }
 

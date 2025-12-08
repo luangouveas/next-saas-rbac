@@ -25,6 +25,8 @@ export async function updateMember(app: FastifyInstance) {
           }),
           body: z.object({
             role: roleSchema,
+            unitId: z.string(),
+            departamentId: z.string(),
           }),
           response: {
             204: z.null(),
@@ -43,7 +45,7 @@ export async function updateMember(app: FastifyInstance) {
           )
         }
 
-        const { role } = request.body
+        const { role, unitId, departamentId } = request.body
 
         await prisma.member.update({
           where: {
@@ -52,6 +54,8 @@ export async function updateMember(app: FastifyInstance) {
           },
           data: {
             role,
+            unitId,
+            departamentId,
           },
         })
 

@@ -8,6 +8,8 @@ interface GetMembershipResponse {
     role: Role
     userId: string
     organizationId: string
+    unitId: string
+    departamentId: string
   }
 }
 

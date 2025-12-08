@@ -1,3 +1,5 @@
+import { ProjectAndStepStatus } from '@saas/auth'
+
 import { api } from './api-client'
 
 interface GetProjectResponse {
@@ -8,10 +10,25 @@ interface GetProjectResponse {
     slug: string
     avatarUrl: string | null
     organizationId: string
-    ownerId: string
-    owner: {
+    createdAt: Date
+    startDate: Date
+    forecastDate: Date
+    endDate: Date | null
+    status: ProjectAndStepStatus
+    requestingDepartament: {
       id: string
-      name: string | null
+      name: string
+    }
+    manager: {
+      id: string
+      name: string
+      email: string
+      avatarUrl: string | null
+    }
+    agent: {
+      id: string
+      name: string
+      email: string
       avatarUrl: string | null
     }
   }
