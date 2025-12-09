@@ -1,8 +1,16 @@
 import { ProjectForm } from '@/app/(app)/org/[slug]/create-project/project-form'
+import { getCurrentOrg } from '@/auth/auth'
 import { InterceptedSheetContent } from '@/components/intercepted-sheet-content'
 import { Sheet, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { getActors } from '@/http/get-actors'
+import { getUnits } from '@/http/get-units'
 
-export default function CreateProject() {
+export default async function CreateProject() {
+  const currentOrg = await getCurrentOrg()
+
+  const { actors } = await getActors(currentOrg!)
+  const { units } = await getUnits(currentOrg!)
+
   return (
     <Sheet defaultOpen>
       <InterceptedSheetContent>
@@ -11,7 +19,7 @@ export default function CreateProject() {
         </SheetHeader>
 
         <div className="py-4">
-          <ProjectForm />
+          <ProjectForm actors={actors} units={units} />
         </div>
       </InterceptedSheetContent>
     </Sheet>

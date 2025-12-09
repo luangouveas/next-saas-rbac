@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 
-import { ability } from '@/auth/auth'
+import { ability, getCurrentOrg } from '@/auth/auth'
+import { getActors } from '@/http/get-actors'
+import { getUnits } from '@/http/get-units'
 
 import { ProjectForm } from './project-form'
 
@@ -11,11 +13,16 @@ export default async function CreateProject() {
     redirect('/')
   }
 
+  const currentOrg = await getCurrentOrg()
+
+  const { actors } = await getActors(currentOrg!)
+  const { units } = await getUnits(currentOrg!)
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Create project</h1>
 
-      <ProjectForm />
+      <ProjectForm actors={actors} units={units} />
     </div>
   )
 }

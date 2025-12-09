@@ -31,9 +31,12 @@ import { getMembers } from './routes/members/get-member'
 import { removeMember } from './routes/members/remove-member'
 import { updateMember } from './routes/members/update-member'
 import { createOrganization } from './routes/orgs/create-organization'
+import { getActors } from './routes/orgs/get-actors'
+import { getUnitDepartaments } from './routes/orgs/get-departaments'
 import { getMembership } from './routes/orgs/get-membership'
 import { getOrganization } from './routes/orgs/get-organization'
 import { getOrganizations } from './routes/orgs/get-organizations'
+import { getUnits } from './routes/orgs/get-units'
 import { shutdownOrganization } from './routes/orgs/shutdown-organization'
 import { transferOrganization } from './routes/orgs/tarnsfer-organization'
 import { updateOrganization } from './routes/orgs/update-organization'
@@ -94,6 +97,9 @@ app.register(getOrganizations)
 app.register(updateOrganization)
 app.register(shutdownOrganization)
 app.register(transferOrganization)
+app.register(getActors)
+app.register(getUnits)
+app.register(getUnitDepartaments)
 
 app.register(createProject)
 app.register(deleteProject)

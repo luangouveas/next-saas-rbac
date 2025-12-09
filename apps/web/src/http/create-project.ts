@@ -8,7 +8,7 @@ interface CreateProjectRequest {
   description: string
   startDate: string
   forecastDate: string
-  endDate: string
+  endDate: string | null | undefined
   status: ProjectAndStepStatus
   requestingDepartamentId: string
   managerId: string
