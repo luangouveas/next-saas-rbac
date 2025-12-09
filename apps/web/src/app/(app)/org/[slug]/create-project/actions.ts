@@ -14,26 +14,37 @@ const projectSchema = z
       .string()
       .min(4, { message: 'Please, incluide at least 4 characters.' }),
     description: z.string(),
-    startDate: z.string().date(),
-    forecastDate: z.string().date(),
-    endDate: z.string().date().optional(),
+    startDate: z.string().refine((v) => v !== '' && v !== undefined, {
+      path: ['startDate'],
+      message: 'Invalid date',
+    }),
+    forecastDate: z.string().refine((v) => v !== '' && v !== undefined, {
+      path: ['forecastDate'],
+      message: 'Invalid date',
+    }),
+    endDate: z.string().optional(),
     status: projectAndStepStatusSchema.optional(),
     requestingDepartamentId: z.string(),
     managerId: z.string(),
     agentId: z.string(),
   })
-  .refine(
-    (data) => {
-      if (data.agentId === data.managerId) {
-        return false
-      }
-      return true
-    },
-    {
-      message: 'Agent cannot be the same as Manager.',
-      path: ['agentId'],
-    },
-  )
+  .superRefine((arg, ctx) => {
+    if (arg.agentId === arg.managerId) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['agentId'],
+        message: 'Agent cannot be the same as Manager.',
+      })
+    }
+
+    if (arg.forecastDate < arg.startDate) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['forecastDate'],
+        message: 'Forecast date cant be lower to start date.',
+      })
+    }
+  })
 
 export async function createProjectAction(data: FormData) {
   console.log(Object.fromEntries(data))

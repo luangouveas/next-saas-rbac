@@ -2,11 +2,10 @@
 
 import { Role } from '@saas/auth'
 import { AlertTriangle, Loader2 } from 'lucide-react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import DatePickerComponent from '@/components/date-picker'
-import { InputDatePicker } from '@/components/input-date-picker'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -61,6 +60,7 @@ interface ProjectFormProps {
 
 export function ProjectForm({ actors, units }: ProjectFormProps) {
   const { slug: org } = useParams<{ slug: string }>()
+  const router = useRouter()
 
   const [departaments, setDepartaments] = useState<Departament[]>([])
 
@@ -70,6 +70,7 @@ export function ProjectForm({ actors, units }: ProjectFormProps) {
       queryClient.invalidateQueries({
         queryKey: [org, 'projects'],
       })
+      router.push(`/org/${org}`)
     },
   )
 
@@ -195,7 +196,7 @@ export function ProjectForm({ actors, units }: ProjectFormProps) {
 
       <div className="space-y-1">
         <Label htmlFor="endDate">End Date</Label>
-        <InputDatePicker />
+        <DatePickerComponent name="endDate" />
 
         {errors?.endDate && (
           <p className="text-xs font-medium text-red-500 dark:text-red-400">
