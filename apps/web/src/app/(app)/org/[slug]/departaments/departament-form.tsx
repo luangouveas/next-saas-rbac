@@ -79,29 +79,25 @@ export function DepartamentForm({
       <div className="space-y-1">
         <Label htmlFor="unitId">Unit</Label>
 
-        {initialData && (
+        {initialData ? (
           <>
             <input type="hidden" name="unitId" value={initialData?.unitId} />
             <input type="hidden" name="id" value={initialData?.id} />
           </>
+        ) : (
+          <Select name="unitId">
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {units.map((unit) => (
+                <SelectItem key={unit.id} value={unit.id}>
+                  {unit.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         )}
-
-        <Select
-          name="SelectUnitId"
-          defaultValue={initialData?.unitId}
-          disabled={!!initialData?.unitId}
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {units.map((unit) => (
-              <SelectItem key={unit.id} value={unit.id}>
-                {unit.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
 
         {errors?.unitId && (
           <p className="text-xs font-medium text-red-500 dark:text-red-400">
