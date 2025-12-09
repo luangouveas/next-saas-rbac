@@ -49,7 +49,7 @@ export async function updateUnit(app: FastifyInstance) {
 
         const authUnit = unitSchema.parse({
           id: unitId,
-          organizationId: userMembership.organizationOwnerId,
+          organizationId: userMembership.organizationId,
         })
 
         if (cannot('update', authUnit)) {
