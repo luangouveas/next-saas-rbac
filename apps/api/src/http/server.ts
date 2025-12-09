@@ -30,12 +30,15 @@ import { revokeInvite } from './routes/invites/revoke-invite'
 import { getMembers } from './routes/members/get-member'
 import { removeMember } from './routes/members/remove-member'
 import { updateMember } from './routes/members/update-member'
+import { createDepartament } from './routes/orgs/create-departament'
 import { createOrganization } from './routes/orgs/create-organization'
+import { createUnit } from './routes/orgs/create-unit'
 import { getActors } from './routes/orgs/get-actors'
 import { getUnitDepartaments } from './routes/orgs/get-departaments'
 import { getMembership } from './routes/orgs/get-membership'
 import { getOrganization } from './routes/orgs/get-organization'
 import { getOrganizations } from './routes/orgs/get-organizations'
+import { getUnit } from './routes/orgs/get-unit'
 import { getUnits } from './routes/orgs/get-units'
 import { shutdownOrganization } from './routes/orgs/shutdown-organization'
 import { transferOrganization } from './routes/orgs/tarnsfer-organization'
@@ -98,8 +101,12 @@ app.register(updateOrganization)
 app.register(shutdownOrganization)
 app.register(transferOrganization)
 app.register(getActors)
+app.register(getUnit)
 app.register(getUnits)
 app.register(getUnitDepartaments)
+
+app.register(createUnit)
+app.register(createDepartament)
 
 app.register(createProject)
 app.register(deleteProject)

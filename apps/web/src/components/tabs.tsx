@@ -13,6 +13,7 @@ export async function Tabs() {
 
   const canGetMembers = permissions?.can('get', 'User')
   const canGetProjects = permissions?.can('get', 'Project')
+  const canGetDepartaments = permissions?.can('get', 'Departament')
 
   return (
     <div className="border-b py-4">
@@ -24,7 +25,20 @@ export async function Tabs() {
             size="sm"
             className="border border-transparent text-muted-foreground data-[current=true]:border-border data-[current=true]:text-foreground"
           >
-            <NavLink href={`/org/${currentOrg}`}>Projects</NavLink>
+            <NavLink href={`/org/${currentOrg}/units`}>Units</NavLink>
+          </Button>
+        )}
+
+        {canGetDepartaments && (
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="border border-transparent text-muted-foreground data-[current=true]:border-border data-[current=true]:text-foreground"
+          >
+            <NavLink href={`/org/${currentOrg}/departaments`}>
+              Departaments
+            </NavLink>
           </Button>
         )}
 
