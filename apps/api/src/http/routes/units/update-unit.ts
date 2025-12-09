@@ -60,6 +60,11 @@ export async function updateUnit(app: FastifyInstance) {
           where: {
             name,
             organizationId: userMembership.organizationId,
+            AND: {
+              NOT: {
+                id: unitId,
+              },
+            },
           },
         })
 

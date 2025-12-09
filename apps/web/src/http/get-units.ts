@@ -9,7 +9,11 @@ interface GetUnitsResponse {
 
 export async function getUnits(org: string) {
   const result = await api
-    .get(`organization/${org}/units`)
+    .get(`organization/${org}/units`, {
+      next: {
+        tags: [`${org}/units`],
+      },
+    })
     .json<GetUnitsResponse>()
 
   return result

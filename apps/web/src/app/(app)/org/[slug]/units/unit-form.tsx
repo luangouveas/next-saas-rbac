@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useFormState } from '@/hooks/use-form-state'
 
-import { createUnitAction, UnitSchema, updateUnitAction } from '../actions'
+import { createUnitAction, UnitSchema, updateUnitAction } from './actions'
 
 interface UnitFormProps {
   isUpdating?: boolean
@@ -45,6 +45,16 @@ export function UnitForm({ isUpdating = false, initialData }: UnitFormProps) {
 
       <div className="space-y-1">
         <Label htmlFor="name">Unit name</Label>
+
+        {initialData?.id && (
+          <input
+            type="hidden"
+            name="id"
+            id="unitId"
+            defaultValue={initialData?.id}
+          />
+        )}
+
         <Input name="name" id="name" defaultValue={initialData?.name} />
 
         {errors?.name && (
