@@ -4,8 +4,10 @@ import { z } from 'zod'
 
 import { auth } from '@/http/middlewares/auth'
 import { prisma } from '@/lib/prisma'
+import { getUserPermissions } from '@/utils/get-user-permissions'
 
 import { BadRequestError } from '../_errors/bad-request-error'
+import { UnauthorizedError } from '../_errors/unauthorized-error'
 
 export async function getUnit(app: FastifyInstance) {
   app
@@ -35,7 +37,14 @@ export async function getUnit(app: FastifyInstance) {
       async (request) => {
         const { slug, unitId } = request.params
 
-        await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
+        const { cannot } = getUserPermissions(userMembership)
+
+        if (cannot('get', 'Unit')) {
+          throw new UnauthorizedError(
+            `You're not allowed to see units in this organization.`,
+          )
+        }
 
         const unit = await prisma.unit.findUnique({
           select: {

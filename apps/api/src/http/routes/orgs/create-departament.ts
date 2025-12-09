@@ -4,8 +4,10 @@ import { z } from 'zod'
 
 import { auth } from '@/http/middlewares/auth'
 import { prisma } from '@/lib/prisma'
+import { getUserPermissions } from '@/utils/get-user-permissions'
 
 import { BadRequestError } from '../_errors/bad-request-error'
+import { UnauthorizedError } from '../_errors/unauthorized-error'
 
 export async function createDepartament(app: FastifyInstance) {
   app
@@ -39,6 +41,13 @@ export async function createDepartament(app: FastifyInstance) {
         const { slug, unitId } = request.params
 
         const userMembership = await request.getUserMembership(slug)
+        const { cannot } = getUserPermissions(userMembership)
+
+        if (cannot('create', 'Departament')) {
+          throw new UnauthorizedError(
+            `You're not allowed to create departaments in this organization.`,
+          )
+        }
 
         const departamentUnitOrganizationByName =
           await prisma.departament.findFirst({
@@ -58,16 +67,6 @@ export async function createDepartament(app: FastifyInstance) {
           data: {
             name,
             unitId,
-          },
-        })
-
-        await prisma.member.create({
-          data: {
-            departamentId: departament.id,
-            unitId,
-            organizationId: userMembership.organizationId,
-            userId: userMembership.userId,
-            role: 'ADMIN',
           },
         })
 

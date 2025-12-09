@@ -4,6 +4,9 @@ import { z } from 'zod'
 
 import { auth } from '@/http/middlewares/auth'
 import { prisma } from '@/lib/prisma'
+import { getUserPermissions } from '@/utils/get-user-permissions'
+
+import { UnauthorizedError } from '../_errors/unauthorized-error'
 
 export async function getUnitDepartaments(app: FastifyInstance) {
   app
@@ -39,7 +42,14 @@ export async function getUnitDepartaments(app: FastifyInstance) {
       async (request) => {
         const { slug, unitId } = request.params
 
-        await request.getUserMembership(slug)
+        const userMembership = await request.getUserMembership(slug)
+        const { cannot } = getUserPermissions(userMembership)
+
+        if (cannot('get', 'Departament')) {
+          throw new UnauthorizedError(
+            `You're not allowed to see departaments in this organization.`,
+          )
+        }
 
         const departaments = await prisma.departament.findMany({
           select: {

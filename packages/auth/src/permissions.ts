@@ -35,12 +35,13 @@ export const permissions: Record<Role, PermissionsByRole> = {
       organizationId: { $eq: user.organizationId },
     })
 
-    can(['create', 'get'], 'Project', {
+    can(['get'], 'Project', {
       requestingDepartamentId: { $eq: user.departamentId },
     })
 
+    can('create', 'Project')
+
     can(['update', 'delete'], 'Project', {
-      requestingDepartamentId: { $eq: user.departamentId },
       status: { $in: ['IN_PROGRESS', 'STOPPED', 'WAITING'] },
     })
   },
