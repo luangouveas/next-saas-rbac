@@ -12,13 +12,14 @@ export async function Tabs() {
   const canGetBilling = permissions?.can('get', 'Billing')
 
   const canGetMembers = permissions?.can('get', 'User')
+  const canGetUnits = permissions?.can('get', 'Unit')
   const canGetProjects = permissions?.can('get', 'Project')
   const canGetDepartaments = permissions?.can('get', 'Departament')
 
   return (
     <div className="border-b py-4">
       <nav className="mx-auto flex max-w-[1200px] items-center gap-2">
-        {canGetProjects && (
+        {canGetUnits && (
           <Button
             asChild
             variant="ghost"
@@ -39,6 +40,17 @@ export async function Tabs() {
             <NavLink href={`/org/${currentOrg}/departaments`}>
               Departaments
             </NavLink>
+          </Button>
+        )}
+
+        {canGetProjects && (
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="border border-transparent text-muted-foreground data-[current=true]:border-border data-[current=true]:text-foreground"
+          >
+            <NavLink href={`/org/${currentOrg}/projects`}>Projects</NavLink>
           </Button>
         )}
 
