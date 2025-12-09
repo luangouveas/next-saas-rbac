@@ -1,3 +1,4 @@
+import { unitSchema } from '@saas/auth/src/models/unit'
 import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
@@ -9,67 +10,80 @@ import { getUserPermissions } from '@/utils/get-user-permissions'
 import { BadRequestError } from '../_errors/bad-request-error'
 import { UnauthorizedError } from '../_errors/unauthorized-error'
 
-export async function createUnit(app: FastifyInstance) {
+export async function updateUnit(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
-    .post(
-      '/organization/:slug/unit',
+    .put(
+      '/organization/:slug/unit/:unitId',
       {
         schema: {
-          tags: ['Organizations'],
-          summary: 'Create a new unit.',
+          tags: ['Units'],
+          summary: 'Update unit details.',
           security: [{ bearerAuth: [] }],
-          params: z.object({
-            slug: z.string(),
-          }),
           body: z.object({
             name: z.string(),
           }),
+          params: z.object({
+            slug: z.string(),
+            unitId: z.string(),
+          }),
           response: {
-            201: z.object({
-              organizationId: z.string().uuid(),
-              unitId: z.string().uuid(),
+            204: z.object({
+              unit: z.object({
+                id: z.string(),
+                name: z.string(),
+                organizationId: z.string(),
+              }),
             }),
           },
         },
       },
       async (request, reply) => {
         const { name } = request.body
-        const { slug } = request.params
+        const { slug, unitId } = request.params
 
         const userMembership = await request.getUserMembership(slug)
+
         const { cannot } = getUserPermissions(userMembership)
 
-        if (cannot('create', 'Unit')) {
-          throw new UnauthorizedError(
-            `You're not allowed to create units in this organization.`,
-          )
+        const authUnit = unitSchema.parse({
+          id: unitId,
+          organizationId: userMembership.organizationOwnerId,
+        })
+
+        if (cannot('update', authUnit)) {
+          throw new UnauthorizedError(`You're not allowed to update this unit.`)
         }
 
-        const unitOrganizationByName = await prisma.unit.findFirst({
+        const unitByName = await prisma.unit.findFirst({
           where: {
             name,
             organizationId: userMembership.organizationId,
           },
         })
 
-        if (unitOrganizationByName) {
+        if (unitByName) {
           throw new BadRequestError(
             'Another unit with same name already exists.',
           )
         }
 
-        const unit = await prisma.unit.create({
+        const unitUpdated = await prisma.unit.update({
+          where: {
+            id: unitId,
+          },
           data: {
             name,
-            organizationId: userMembership.organizationId,
           },
         })
 
-        return reply.status(201).send({
-          organizationId: unit.organizationId,
-          unitId: unit.id,
+        return reply.status(204).send({
+          unit: {
+            id: unitUpdated.id,
+            name: unitUpdated.name,
+            organizationId: unitUpdated.organizationId,
+          },
         })
       },
     )

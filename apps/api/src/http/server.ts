@@ -20,6 +20,10 @@ import { getProfile } from './routes/auth/get-profile'
 import { requestPasswordRecover } from './routes/auth/request-password-recover'
 import { resetPassword } from './routes/auth/reset-password'
 import { getOrganizationBilling } from './routes/billing/get-organization-billing'
+import { createDepartament } from './routes/departaments/create-departament'
+import { getDepartament } from './routes/departaments/get-departament'
+import { getUnitDepartaments } from './routes/departaments/get-departaments'
+import { updateDepartament } from './routes/departaments/update-departament'
 import { acceptInvite } from './routes/invites/accept-invite'
 import { createInvite } from './routes/invites/create-invite'
 import { getInvite } from './routes/invites/get-invite'
@@ -30,16 +34,11 @@ import { revokeInvite } from './routes/invites/revoke-invite'
 import { getMembers } from './routes/members/get-member'
 import { removeMember } from './routes/members/remove-member'
 import { updateMember } from './routes/members/update-member'
-import { createDepartament } from './routes/orgs/create-departament'
 import { createOrganization } from './routes/orgs/create-organization'
-import { createUnit } from './routes/orgs/create-unit'
 import { getActors } from './routes/orgs/get-actors'
-import { getUnitDepartaments } from './routes/orgs/get-departaments'
 import { getMembership } from './routes/orgs/get-membership'
 import { getOrganization } from './routes/orgs/get-organization'
 import { getOrganizations } from './routes/orgs/get-organizations'
-import { getUnit } from './routes/orgs/get-unit'
-import { getUnits } from './routes/orgs/get-units'
 import { shutdownOrganization } from './routes/orgs/shutdown-organization'
 import { transferOrganization } from './routes/orgs/tarnsfer-organization'
 import { updateOrganization } from './routes/orgs/update-organization'
@@ -48,6 +47,10 @@ import { deleteProject } from './routes/projects/delete-project'
 import { getProject } from './routes/projects/get-project'
 import { getProjects } from './routes/projects/get-projects'
 import { updateProject } from './routes/projects/update-project'
+import { createUnit } from './routes/units/create-unit'
+import { getUnit } from './routes/units/get-unit'
+import { getUnits } from './routes/units/get-units'
+import { updateUnit } from './routes/units/update-unit'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -101,12 +104,16 @@ app.register(updateOrganization)
 app.register(shutdownOrganization)
 app.register(transferOrganization)
 app.register(getActors)
+
 app.register(getUnit)
 app.register(getUnits)
-app.register(getUnitDepartaments)
-
 app.register(createUnit)
+app.register(updateUnit)
+
+app.register(getDepartament)
+app.register(getUnitDepartaments)
 app.register(createDepartament)
+app.register(updateDepartament)
 
 app.register(createProject)
 app.register(deleteProject)

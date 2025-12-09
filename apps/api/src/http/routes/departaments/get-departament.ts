@@ -6,41 +6,37 @@ import { auth } from '@/http/middlewares/auth'
 import { prisma } from '@/lib/prisma'
 import { getUserPermissions } from '@/utils/get-user-permissions'
 
+import { BadRequestError } from '../_errors/bad-request-error'
 import { UnauthorizedError } from '../_errors/unauthorized-error'
 
-export async function getUnitDepartaments(app: FastifyInstance) {
+export async function getDepartament(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
     .get(
-      '/organization/:slug/unit/:unitId/departaments',
+      '/organization/:slug/departament/:departamentId',
       {
         schema: {
-          tags: ['Organizations'],
-          summary: 'Get all unit departaments',
+          tags: ['Departaments'],
+          summary: 'Get an departament',
           security: [{ bearerAuth: [] }],
           params: z.object({
             slug: z.string(),
-            unitId: z.string(),
+            departamentId: z.string(),
           }),
           response: {
             200: z.object({
-              departaments: z.array(
-                z.object({
-                  id: z.string().uuid(),
-                  name: z.string(),
-                  unit: z.object({
-                    id: z.string(),
-                    name: z.string(),
-                  }),
-                }),
-              ),
+              departament: z.object({
+                id: z.string().uuid(),
+                unitId: z.string().uuid(),
+                name: z.string(),
+              }),
             }),
           },
         },
       },
       async (request) => {
-        const { slug, unitId } = request.params
+        const { slug, departamentId } = request.params
 
         const userMembership = await request.getUserMembership(slug)
         const { cannot } = getUserPermissions(userMembership)
@@ -51,24 +47,23 @@ export async function getUnitDepartaments(app: FastifyInstance) {
           )
         }
 
-        const departaments = await prisma.departament.findMany({
+        const departament = await prisma.departament.findUnique({
           select: {
             id: true,
             name: true,
-            unit: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
+            unitId: true,
           },
           where: {
-            unitId,
+            id: departamentId,
           },
         })
 
+        if (!departament) {
+          throw new BadRequestError('Departament not found.')
+        }
+
         return {
-          departaments,
+          departament,
         }
       },
     )

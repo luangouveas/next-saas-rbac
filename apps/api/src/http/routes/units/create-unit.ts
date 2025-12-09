@@ -9,20 +9,19 @@ import { getUserPermissions } from '@/utils/get-user-permissions'
 import { BadRequestError } from '../_errors/bad-request-error'
 import { UnauthorizedError } from '../_errors/unauthorized-error'
 
-export async function createDepartament(app: FastifyInstance) {
+export async function createUnit(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
     .post(
-      '/organization/:slug/unit/:unitId/departament',
+      '/organization/:slug/unit',
       {
         schema: {
-          tags: ['Organizations'],
-          summary: 'Create a new departament.',
+          tags: ['Units'],
+          summary: 'Create a new unit.',
           security: [{ bearerAuth: [] }],
           params: z.object({
             slug: z.string(),
-            unitId: z.string(),
           }),
           body: z.object({
             name: z.string(),
@@ -31,49 +30,46 @@ export async function createDepartament(app: FastifyInstance) {
             201: z.object({
               organizationId: z.string().uuid(),
               unitId: z.string().uuid(),
-              departamentId: z.string().uuid(),
             }),
           },
         },
       },
       async (request, reply) => {
         const { name } = request.body
-        const { slug, unitId } = request.params
+        const { slug } = request.params
 
         const userMembership = await request.getUserMembership(slug)
         const { cannot } = getUserPermissions(userMembership)
 
-        if (cannot('create', 'Departament')) {
+        if (cannot('create', 'Unit')) {
           throw new UnauthorizedError(
-            `You're not allowed to create departaments in this organization.`,
+            `You're not allowed to create units in this organization.`,
           )
         }
 
-        const departamentUnitOrganizationByName =
-          await prisma.departament.findFirst({
-            where: {
-              name,
-              unitId,
-            },
-          })
+        const unitOrganizationByName = await prisma.unit.findFirst({
+          where: {
+            name,
+            organizationId: userMembership.organizationId,
+          },
+        })
 
-        if (departamentUnitOrganizationByName) {
+        if (unitOrganizationByName) {
           throw new BadRequestError(
-            'Another departament with same name already exists.',
+            'Another unit with same name already exists.',
           )
         }
 
-        const departament = await prisma.departament.create({
+        const unit = await prisma.unit.create({
           data: {
             name,
-            unitId,
+            organizationId: userMembership.organizationId,
           },
         })
 
         return reply.status(201).send({
-          organizationId: userMembership.organizationId,
-          unitId: departament.id,
-          departamentId: departament.id,
+          organizationId: unit.organizationId,
+          unitId: unit.id,
         })
       },
     )

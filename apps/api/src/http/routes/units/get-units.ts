@@ -16,7 +16,7 @@ export async function getUnits(app: FastifyInstance) {
       '/organization/:slug/units',
       {
         schema: {
-          tags: ['Organizations'],
+          tags: ['Units'],
           summary: 'Get all organization units',
           security: [{ bearerAuth: [] }],
           params: z.object({

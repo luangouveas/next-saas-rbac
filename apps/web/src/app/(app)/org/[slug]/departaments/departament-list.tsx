@@ -85,7 +85,7 @@ export function DepartamentList({
 
         {canCreateDepartaments && (
           <Button size="sm" asChild>
-            <Link href={`/org/${currentOrg}/departament/create`}>
+            <Link href={`/org/${currentOrg}/departaments/create`}>
               <Plus className="mr-2 size-4" />
               Create departament
             </Link>
@@ -108,7 +108,9 @@ export function DepartamentList({
                 </ItemContent>
                 <ItemActions>
                   <Button variant="outline" size="sm">
-                    <Link href={`/org/${currentOrg}/units/${departament.id}`}>
+                    <Link
+                      href={`/org/${currentOrg}/departaments/${departament.id}`}
+                    >
                       <PenBoxIcon className="size-4" />
                     </Link>
                   </Button>
