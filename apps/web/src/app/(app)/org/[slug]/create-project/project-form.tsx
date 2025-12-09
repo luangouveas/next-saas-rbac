@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation'
 import { useState } from 'react'
 
 import DatePickerComponent from '@/components/date-picker'
+import { InputDatePicker } from '@/components/input-date-picker'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -188,6 +189,17 @@ export function ProjectForm({ actors, units }: ProjectFormProps) {
         {errors?.forecastDate && (
           <p className="text-xs font-medium text-red-500 dark:text-red-400">
             {errors.forecastDate[0]}
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="endDate">End Date</Label>
+        <InputDatePicker />
+
+        {errors?.endDate && (
+          <p className="text-xs font-medium text-red-500 dark:text-red-400">
+            {errors.endDate[0]}
           </p>
         )}
       </div>
