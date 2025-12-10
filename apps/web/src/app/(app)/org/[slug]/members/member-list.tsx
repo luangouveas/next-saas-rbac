@@ -62,6 +62,8 @@ export async function MemberList() {
                         )}
                       </span>
                       <span className="text-xs text-muted-foreground">
+                        {member.departament.name}
+                        <br />
                         {member.email}
                       </span>
                     </div>

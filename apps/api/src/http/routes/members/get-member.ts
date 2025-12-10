@@ -53,6 +53,9 @@ export async function getMembers(app: FastifyInstance) {
         const { cannot } = getUserPermissions(userMembership)
 
         const authMember = memberSchema.parse({
+          id: userMembership.id,
+          unitId: userMembership.unitId,
+          departamentId: userMembership.organizationId,
           organizationId: userMembership.organizationId,
         })
 

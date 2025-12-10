@@ -11,7 +11,7 @@ export async function Tabs() {
   const canUpdateOrganization = permissions?.can('update', 'Organization')
   const canGetBilling = permissions?.can('get', 'Billing')
 
-  const canGetMembers = permissions?.can('get', 'User')
+  const canGetMembers = permissions?.can('get', 'Member')
   const canGetUnits = permissions?.can('get', 'Unit')
   const canGetProjects = permissions?.can('get', 'Project')
   const canGetDepartaments = permissions?.can('get', 'Departament')

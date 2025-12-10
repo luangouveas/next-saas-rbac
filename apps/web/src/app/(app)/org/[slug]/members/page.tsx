@@ -12,7 +12,7 @@ export default async function MembersPage() {
 
       <div className="space-y-4">
         {permissions?.can('get', 'Invite') && <Invites />}
-        {permissions?.can('get', 'User') && <MemberList />}
+        {permissions?.can('get', 'Member') && <MemberList />}
       </div>
     </div>
   )
