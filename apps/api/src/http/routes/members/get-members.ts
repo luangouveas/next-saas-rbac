@@ -8,47 +8,46 @@ import { UnauthorizedError } from '@/http/routes/_errors/unauthorized-error'
 import { prisma } from '@/lib/prisma'
 import { getUserPermissions } from '@/utils/get-user-permissions'
 
-import { BadRequestError } from '../_errors/bad-request-error'
-
-export async function getMember(app: FastifyInstance) {
+export async function getMembers(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
     .get(
-      '/organization/:slug/members/:memberId',
+      '/organization/:slug/members',
       {
         schema: {
           tags: ['Members'],
-          summary: 'Get member details',
+          summary: 'Get all organization members',
           security: [{ bearerAuth: [] }],
           params: z.object({
             slug: z.string(),
-            memberId: z.string(),
           }),
           response: {
             200: z.object({
-              member: z.object({
-                id: z.string().uuid(),
-                userId: z.string().uuid(),
-                role: roleSchema,
-                name: z.string().nullable(),
-                email: z.string().email(),
-                avatarUrl: z.string().url().nullable(),
-                unit: z.object({
-                  id: z.string(),
-                  name: z.string(),
+              members: z.array(
+                z.object({
+                  id: z.string().uuid(),
+                  userId: z.string().uuid(),
+                  role: roleSchema,
+                  name: z.string().nullable(),
+                  email: z.string().email(),
+                  avatarUrl: z.string().url().nullable(),
+                  unit: z.object({
+                    id: z.string(),
+                    name: z.string(),
+                  }),
+                  departament: z.object({
+                    id: z.string(),
+                    name: z.string(),
+                  }),
                 }),
-                departament: z.object({
-                  id: z.string(),
-                  name: z.string(),
-                }),
-              }),
+              ),
             }),
           },
         },
       },
       async (request, reply) => {
-        const { slug, memberId } = request.params
+        const { slug } = request.params
         const userMembership = await request.getUserMembership(slug)
 
         const { cannot } = getUserPermissions(userMembership)
@@ -66,7 +65,7 @@ export async function getMember(app: FastifyInstance) {
           )
         }
 
-        const member = await prisma.member.findUnique({
+        const members = await prisma.member.findMany({
           select: {
             id: true,
             role: true,
@@ -92,26 +91,26 @@ export async function getMember(app: FastifyInstance) {
             },
           },
           where: {
-            id: memberId,
+            organizationId: userMembership.organizationId,
+          },
+          orderBy: {
+            role: 'asc',
           },
         })
 
-        if (!member) {
-          throw new BadRequestError('Member not found.')
-        }
+        const membersWithRoles = members.map(
+          ({ user: { id: userId, ...user }, departament, unit, ...member }) => {
+            return {
+              ...user,
+              ...member,
+              unit,
+              departament,
+              userId,
+            }
+          },
+        )
 
-        const memberWithRole = {
-          id: member.id,
-          userId: member.user.id,
-          role: member.role,
-          name: member.user.name,
-          email: member.user.email,
-          avatarUrl: member.user.avatarUrl,
-          unit: member.unit,
-          departament: member.departament,
-        }
-
-        return reply.send({ member: memberWithRole })
+        return reply.send({ members: membersWithRoles })
       },
     )
 }

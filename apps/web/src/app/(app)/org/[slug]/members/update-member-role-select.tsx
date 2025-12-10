@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import { updateMemberAction } from './actions'
+import { updateRoleMemberAction } from './actions'
 
 interface UpdateMemberRoleSelectProps extends ComponentProps<typeof Select> {
   memberId: string
@@ -22,7 +22,7 @@ export function UpdateMemberRoleSelect({
   ...props
 }: UpdateMemberRoleSelectProps) {
   async function updateMemberRole(role: Role) {
-    await updateMemberAction(memberId, role)
+    await updateRoleMemberAction(memberId, role)
   }
 
   return (

@@ -25,8 +25,8 @@ export async function updateMember(app: FastifyInstance) {
           }),
           body: z.object({
             role: roleSchema,
-            unitId: z.string(),
-            departamentId: z.string(),
+            unitId: z.string().optional(),
+            departamentId: z.string().optional(),
           }),
           response: {
             204: z.null(),

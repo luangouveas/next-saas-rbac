@@ -14,7 +14,18 @@ import { updateMember } from '@/http/update-member'
 const inviteSchema = z.object({
   email: z.string().email({ message: 'Invalid e-mail address.' }),
   role: roleSchema,
+  unitId: z.string().uuid(),
+  departamentId: z.string().uuid(),
 })
+
+const memberSchema = z.object({
+  id: z.string().uuid(),
+  role: roleSchema,
+  unitId: z.string().uuid(),
+  departamentId: z.string().uuid(),
+})
+
+export type MemberSchema = z.infer<typeof memberSchema>
 
 export async function createInviteAction(data: FormData) {
   const currentOrg = await getCurrentOrg()!
@@ -26,12 +37,14 @@ export async function createInviteAction(data: FormData) {
     return { success: false, message: null, errors }
   }
 
-  const { email, role } = result.data
+  const { email, role, departamentId, unitId } = result.data
 
   try {
     await createInvite({
       org: currentOrg!,
       email,
+      unitId,
+      departamentId,
       role,
     })
 
@@ -59,6 +72,51 @@ export async function createInviteAction(data: FormData) {
   }
 }
 
+export async function updateMemberAction(data: FormData) {
+  const currentOrg = await getCurrentOrg()!
+  const result = memberSchema.safeParse(Object.fromEntries(data))
+
+  if (!result.success) {
+    const errors = result.error.flatten().fieldErrors
+
+    return { success: false, message: null, errors }
+  }
+
+  const { id, role, departamentId, unitId } = result.data
+
+  try {
+    await updateMember({
+      org: currentOrg!,
+      memberId: id,
+      unitId,
+      departamentId,
+      role,
+    })
+
+    revalidateTag(`${currentOrg}/members`)
+  } catch (err) {
+    if (err instanceof HTTPError) {
+      const { message } = await err.response.json()
+
+      return { success: false, message, errors: null }
+    }
+
+    console.error(err)
+
+    return {
+      success: false,
+      message: 'Unexpected error, try again in a few minutes.',
+      errors: null,
+    }
+  }
+
+  return {
+    success: true,
+    message: 'Successfully updated the member.',
+    errors: null,
+  }
+}
+
 export async function removeMemberAction(memberId: string) {
   const currentOrg = await getCurrentOrg()
 
@@ -70,7 +128,7 @@ export async function removeMemberAction(memberId: string) {
   revalidateTag(`${currentOrg}/members`)
 }
 
-export async function updateMemberAction(memberId: string, role: Role) {
+export async function updateRoleMemberAction(memberId: string, role: Role) {
   const currentOrg = await getCurrentOrg()
 
   await updateMember({

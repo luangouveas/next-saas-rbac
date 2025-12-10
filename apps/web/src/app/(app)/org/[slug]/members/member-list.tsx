@@ -1,6 +1,7 @@
 import { organizationSchema } from '@saas/auth'
 import { ArrowLeftRight, Crown, UserMinus } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 import { ability, getCurrentOrg } from '@/auth/auth'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -62,7 +63,7 @@ export async function MemberList() {
                         )}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {member.departament.name}
+                        {member.unit.name} - {member.departament.name}
                         <br />
                         {member.email}
                       </span>
@@ -89,6 +90,12 @@ export async function MemberList() {
                           permissions?.cannot('update', 'User')
                         }
                       />
+
+                      <Button size="sm" variant="outline" asChild>
+                        <Link href={`/org/${currentOrg}/members/${member.id}`}>
+                          Edit
+                        </Link>
+                      </Button>
 
                       {permissions?.can('delete', 'User') && (
                         <form action={removeMemberAction.bind(null, member.id)}>

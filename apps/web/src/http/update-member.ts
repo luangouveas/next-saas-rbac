@@ -5,8 +5,8 @@ import { api } from './api-client'
 interface UpdateMemberRequest {
   org: string
   memberId: string
-  unitId: string
-  departamentId: string
+  unitId?: string
+  departamentId?: string
   role: Role
 }
 
