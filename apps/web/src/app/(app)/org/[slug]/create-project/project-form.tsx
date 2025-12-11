@@ -70,7 +70,7 @@ export function ProjectForm({ actors, units }: ProjectFormProps) {
       queryClient.invalidateQueries({
         queryKey: [org, 'projects'],
       })
-      router.push(`/org/${org}`)
+      router.push(`/org/${org}/projects`)
     },
   )
 
@@ -151,7 +151,7 @@ export function ProjectForm({ actors, units }: ProjectFormProps) {
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="requestingDepartamentId">Departament</Label>
+        <Label htmlFor="requestingDepartamentId">Requesting Departament</Label>
         <Select name="requestingDepartamentId">
           <SelectTrigger>
             <SelectValue />
@@ -214,7 +214,7 @@ export function ProjectForm({ actors, units }: ProjectFormProps) {
           <SelectContent>
             {actors.map((actor) => (
               <SelectItem key={actor.user.id} value={actor.user.id}>
-                {actor.user.name}
+                {actor.user.name ?? actor.user.email}
               </SelectItem>
             ))}
           </SelectContent>
@@ -236,7 +236,7 @@ export function ProjectForm({ actors, units }: ProjectFormProps) {
           <SelectContent>
             {actors.map((actor) => (
               <SelectItem key={actor.user.id} value={actor.user.id}>
-                {actor.user.name}
+                {actor.user.name ?? actor.user.email}
               </SelectItem>
             ))}
           </SelectContent>

@@ -39,12 +39,24 @@ export const permissions: Record<Role, PermissionsByRole> = {
       id: { $eq: user.organizationId },
     })
 
-    can(['get', 'create'], 'Project', {
+    can('create', 'Project', {
+      organizationId: { $eq: user.organizationId },
+    })
+
+    can('get', 'Project', {
       organizationId: { $eq: user.organizationId },
     })
 
     can(['update', 'delete'], 'Project', {
+      organizationId: { $eq: user.organizationId },
       status: { $in: ['IN_PROGRESS', 'STOPPED', 'WAITING'] },
+      managerId: { $eq: user.id },
+    })
+
+    can('update', 'Project', {
+      organizationId: { $eq: user.organizationId },
+      status: { $in: ['IN_PROGRESS', 'STOPPED', 'WAITING'] },
+      agentId: { $eq: user.id },
     })
   },
   BILLING(_, { can }) {

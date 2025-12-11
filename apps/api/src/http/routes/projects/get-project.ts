@@ -1,4 +1,4 @@
-import { projectAndStepStatusSchema } from '@saas/auth'
+import { projectAndStepStatusSchema, projectSchema } from '@saas/auth'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
@@ -67,12 +67,6 @@ export async function getProject(app: FastifyInstance) {
 
         const { cannot } = getUserPermissions(userMembership)
 
-        if (cannot('get', 'Project')) {
-          throw new UnauthorizedError(
-            `You're not allowed to see this projects.`,
-          )
-        }
-
         const project = await prisma.project.findUnique({
           select: {
             id: true,
@@ -118,6 +112,21 @@ export async function getProject(app: FastifyInstance) {
         if (!project) {
           console.log('Project not found.')
           throw new BadRequestError('Project not found.')
+        }
+
+        const authProject = projectSchema.parse({
+          id: project.id,
+          organizationId: project.organizationId,
+          requestingDepartamentId: project.requestingDepartament.id,
+          managerId: project.manager.id,
+          agentId: project.agent?.id,
+          status: project.status,
+        })
+
+        if (cannot('get', authProject)) {
+          throw new UnauthorizedError(
+            `You're not allowed to see this projects.`,
+          )
         }
 
         return reply.send({ project })

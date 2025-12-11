@@ -6,7 +6,7 @@ export const projectSchema = z.object({
   organizationId: z.string(),
   requestingDepartamentId: z.string(),
   managerId: z.string(),
-  ownerId: z.string(),
+  agentId: z.string().nullish(),
   status: z.enum(['IN_PROGRESS', 'STOPPED', 'COMPLETED', 'WAITING']),
 })
 
