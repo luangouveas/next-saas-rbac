@@ -14,8 +14,8 @@ import { updateMember } from '@/http/update-member'
 const inviteSchema = z.object({
   email: z.string().email({ message: 'Invalid e-mail address.' }),
   role: roleSchema,
-  unitId: z.string().uuid(),
-  departamentId: z.string().uuid(),
+  unitId: z.string().uuid({ message: 'Select a unit' }),
+  departamentId: z.string().uuid({ message: 'Select a departament' }),
 })
 
 const memberSchema = z.object({

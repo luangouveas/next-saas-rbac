@@ -63,9 +63,12 @@ export async function MemberList() {
                         )}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {member.unit.name} - {member.departament.name}
-                        <br />
                         {member.email}
+                        <br />
+                        <br />
+                        {member.unit.name}
+                        <br />
+                        {member.departament.name}
                       </span>
                     </div>
                   </TableCell>

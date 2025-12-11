@@ -12,6 +12,14 @@ interface GetInvitesResponse {
       id: string
       name: string | null
     } | null
+    departament: {
+      id: string
+      name: string
+    }
+    unit: {
+      id: string
+      name: string
+    }
   }[]
 }
 

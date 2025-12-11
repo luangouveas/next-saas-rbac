@@ -2,6 +2,7 @@ import { ability, getCurrentOrg } from '@/auth/auth'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { getInvites } from '@/http/get-invites'
+import { getUnits } from '@/http/get-units'
 
 import { CreateInviteForm } from './create-invite-form'
 import { RevokeInviteButton } from './revoke-invite-button'
@@ -12,6 +13,8 @@ export async function Invites() {
 
   const { invites } = await getInvites(currentOrg!)
 
+  const { units } = await getUnits(currentOrg!)
+
   return (
     <div className="space-y-4">
       {permissions?.can('create', 'Invite') && (
@@ -20,7 +23,7 @@ export async function Invites() {
             <CardTitle>Invite member</CardTitle>
           </CardHeader>
           <CardContent>
-            <CreateInviteForm />
+            <CreateInviteForm units={units} />
           </CardContent>
         </Card>
       )}
@@ -35,9 +38,17 @@ export async function Invites() {
                 return (
                   <TableRow key={invite.id}>
                     <TableCell className="py-2.5">
-                      <span className="text-muted-foreground">
-                        {invite.email}
-                      </span>
+                      <div className="flex flex-col">
+                        <span className="text-foreground">{invite.email}</span>
+
+                        <span className="text-xs text-muted-foreground">
+                          {invite.unit.name}
+                        </span>
+
+                        <span className="text-xs text-muted-foreground">
+                          {invite.departament.name}
+                        </span>
+                      </div>
                     </TableCell>
                     <TableCell className="py-2.5 font-medium">
                       {invite.role}

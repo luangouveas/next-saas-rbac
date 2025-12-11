@@ -16,6 +16,14 @@ interface GetInviteResponse {
       name: string | null
       avatarUrl: string | null
     } | null
+    departament: {
+      id: string
+      name: string
+    }
+    unit: {
+      id: string
+      name: string
+    }
   }
 }
 

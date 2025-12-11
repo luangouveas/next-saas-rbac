@@ -36,6 +36,14 @@ export async function getInvites(app: FastifyInstance) {
                       name: z.string().nullable(),
                     })
                     .nullable(),
+                  departament: z.object({
+                    id: z.string().uuid(),
+                    name: z.string().nullable(),
+                  }),
+                  unit: z.object({
+                    id: z.string().uuid(),
+                    name: z.string().nullable(),
+                  }),
                 }),
               ),
             }),
@@ -64,6 +72,18 @@ export async function getInvites(app: FastifyInstance) {
             role: true,
             createdAt: true,
             author: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            departament: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            unit: {
               select: {
                 id: true,
                 name: true,
