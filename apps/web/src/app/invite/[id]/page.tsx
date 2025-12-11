@@ -41,7 +41,9 @@ export default async function InvitePage({ params }: InvitePageProps) {
     const cookiesStore = await cookies()
     cookiesStore.set('inviteId', inviteId)
 
-    redirect(`/auth/sign-in?email=${invite.email}`)
+    redirect(
+      `/auth/sign-in?orgSlug=${invite.organization.slug}&email=${invite.email}`,
+    )
   }
 
   async function acceptInviteAction() {
@@ -49,7 +51,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
 
     await acceptInvite(inviteId)
 
-    redirect('/')
+    redirect(`/org/${invite.organization.slug}`)
   }
 
   return (

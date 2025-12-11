@@ -1,10 +1,12 @@
 import { roleSchema } from '@saas/auth'
+import { hash } from 'bcryptjs'
 import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 
 import { auth } from '@/http/middlewares/auth'
 import { prisma } from '@/lib/prisma'
+import { createRandomPassword } from '@/utils/create-random-password'
 import { getUserPermissions } from '@/utils/get-user-permissions'
 
 import { BadRequestError } from '../_errors/bad-request-error'
@@ -92,6 +94,40 @@ export async function createInvite(app: FastifyInstance) {
             authorId: userId,
           },
         })
+
+        const userAlreadyCreated = await prisma.user.findUnique({
+          where: {
+            email,
+          },
+        })
+
+        if (!userAlreadyCreated) {
+          const randomPassword = createRandomPassword()
+
+          await prisma.user.create({
+            data: {
+              email,
+              passwordHash: await hash(randomPassword, 6),
+            },
+          })
+          console.log('Enviar email...')
+          console.log(
+            'Você recebeu um convite para participar de uma organização em [nome do app]',
+          )
+          console.log(
+            `Clicando no link abaixo, você será redirecionado ao nosso site, onde poderá se autenticar com seu e-mail e a senha: ${randomPassword}`,
+          )
+        } else {
+          console.log('Enviar email...')
+          console.log(
+            'Você recebeu um convite para participar de uma organização em [nome do app]',
+          )
+          console.log(
+            `Clicando no link abaixo, você será redirecionado ao nosso site, onde poderá aceitar o convite`,
+          )
+        }
+
+        console.log(`http://localhost:3000/invite/${invite.id}`)
 
         return reply.status(201).send({
           inviteId: invite.id,

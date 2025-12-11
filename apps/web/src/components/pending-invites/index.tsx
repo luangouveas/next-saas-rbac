@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { Check, UserPlus2, X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { getPendingInvites } from '@/http/get-pending-invites'
@@ -18,16 +19,20 @@ export function PendingInvites() {
   const queryClient = useQueryClient()
   const [isOpen, setIsOpen] = useState(false)
 
+  const router = useRouter()
+
   const { data } = useQuery({
     queryKey: ['pending-invites'],
     queryFn: getPendingInvites,
     enabled: isOpen,
   })
 
-  async function handleAcceptInvite(inviteId: string) {
+  async function handleAcceptInvite(inviteId: string, slug: string) {
     await acceptInviteAction(inviteId)
 
     queryClient.invalidateQueries({ queryKey: ['pending-invites'] })
+
+    router.push(`/org/${slug}`)
   }
 
   async function handleRejectInvite(inviteId: string) {
@@ -69,7 +74,9 @@ export function PendingInvites() {
 
               <div className="flex gap-1">
                 <Button
-                  onClick={() => handleAcceptInvite(invite.id)}
+                  onClick={() =>
+                    handleAcceptInvite(invite.id, invite.organization.slug)
+                  }
                   size="xs"
                   variant="outline"
                 >

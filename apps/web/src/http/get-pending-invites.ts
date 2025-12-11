@@ -6,6 +6,7 @@ interface GetPendingInvitesResponse {
   invites: {
     organization: {
       name: string
+      slug: string
     }
     id: string
     role: Role

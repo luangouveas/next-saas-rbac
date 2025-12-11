@@ -1,5 +1,5 @@
 import { organizationSchema } from '@saas/auth'
-import { ArrowLeftRight, Crown, UserMinus } from 'lucide-react'
+import { ArrowLeftRight, Crown, Edit, UserMinus } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -94,11 +94,15 @@ export async function MemberList() {
                         }
                       />
 
-                      <Button size="sm" variant="outline" asChild>
-                        <Link href={`/org/${currentOrg}/members/${member.id}`}>
-                          Edit
-                        </Link>
-                      </Button>
+                      {permissions?.can('update', 'Member') && (
+                        <Button size="sm" variant="outline" asChild>
+                          <Link
+                            href={`/org/${currentOrg}/members/${member.id}`}
+                          >
+                            <Edit className="mr-2 size-4" /> Edit
+                          </Link>
+                        </Button>
+                      )}
 
                       {permissions?.can('delete', 'User') && (
                         <form action={removeMemberAction.bind(null, member.id)}>

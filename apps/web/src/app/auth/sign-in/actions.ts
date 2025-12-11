@@ -2,7 +2,6 @@
 
 import { HTTPError } from 'ky'
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
 import { acceptInvite } from '@/http/accept-invite'
@@ -69,5 +68,9 @@ export async function signInWithEmailAndPassword(data: FormData) {
     }
   }
 
-  redirect('/')
+  return {
+    success: true,
+    message: null,
+    errors: null,
+  }
 }
