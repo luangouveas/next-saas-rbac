@@ -2,11 +2,11 @@ import { getCurrentOrg } from '@/auth/auth'
 import { getProject } from '@/http/get-project'
 
 interface ProjectPageProps {
-  params: Promise<{ project: string }>
+  params: Promise<{ projectId: string }>
 }
 
 export default async function Project({ params }: ProjectPageProps) {
-  const projectSlug = (await params).project
+  const projectSlug = (await params).projectId
   const currentOrg = await getCurrentOrg()
 
   const { project } = await getProject(currentOrg!, projectSlug)

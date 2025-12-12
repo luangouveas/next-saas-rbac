@@ -22,7 +22,7 @@ import { useFormState } from '@/hooks/use-form-state'
 import { getUnitDepartaments } from '@/http/get-unit-departaments'
 import { queryClient } from '@/lib/react-query'
 
-import { createProjectAction } from './actions'
+import { createProjectAction } from './create/actions'
 
 type Departament = {
   id: string

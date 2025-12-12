@@ -4,7 +4,7 @@ import { ability, getCurrentOrg } from '@/auth/auth'
 import { getActors } from '@/http/get-actors'
 import { getUnits } from '@/http/get-units'
 
-import { ProjectForm } from './project-form'
+import { ProjectForm } from '../project-form'
 
 export default async function CreateProject() {
   const permissions = await ability()

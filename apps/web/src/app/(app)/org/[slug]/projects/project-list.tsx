@@ -42,7 +42,7 @@ export async function ProjectList() {
               </span>
 
               <Button size="xs" variant="outline" className="ml-auto" asChild>
-                <Link href={`/org/${currentOrg!}/project/${project.slug}`}>
+                <Link href={`/org/${currentOrg!}/projects/${project.slug}`}>
                   View <ArrowRight className="ml-2 size-3" />
                 </Link>
               </Button>
