@@ -47,7 +47,6 @@ const projectSchema = z
   })
 
 export async function createProjectAction(data: FormData) {
-  console.log(Object.fromEntries(data))
   const result = projectSchema.safeParse(Object.fromEntries(data))
 
   if (!result.success) {

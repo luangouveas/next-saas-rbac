@@ -12,7 +12,6 @@ interface GetUnitDepartamentsResponse {
 }
 
 export async function getUnitDepartaments(org: string, unitId: string) {
-  console.log(org, unitId)
   const result = await api
     .get(`organization/${org}/unit/${unitId}/departaments`)
     .json<GetUnitDepartamentsResponse>()

@@ -31,8 +31,6 @@ export function ProjectSwitcher() {
     enabled: !!orgSlug,
   })
 
-  console.log(data)
-
   const currentProject =
     data && projectSlug
       ? data.projects.find((project) => project.slug === projectSlug)

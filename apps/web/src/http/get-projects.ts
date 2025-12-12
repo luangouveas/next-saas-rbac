@@ -59,8 +59,6 @@ const mapFilters = (filters: object) => {
 export async function getProjects(org: string, filtros?: Filtros | null) {
   const querystring = filtros ? `?${mapFilters(filtros)}` : ''
 
-  console.log(`organization/${org}/projects${querystring}`)
-
   const result = await api
     .get(`organization/${org}/projects${querystring}`, {
       next: {

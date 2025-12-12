@@ -122,7 +122,6 @@ export async function getProject(app: FastifyInstance) {
         })
 
         if (!project) {
-          console.log('Project not found.')
           throw new BadRequestError('Project not found.')
         }
 

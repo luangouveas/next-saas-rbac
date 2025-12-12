@@ -53,7 +53,6 @@ export function ProjectList() {
   })
 
   function onChangeFilter(key: string, value: string) {
-    console.log(key, value)
     setFilters((prev) => {
       if (value === '0') {
         const clone = { ...prev }
