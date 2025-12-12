@@ -155,8 +155,9 @@ model Departament {
   unitId String @map("unit_id")
 
   members            Member[]
-  requested_projects Project[]
   invites            Invite[]
+  requested_projects Project[] @relation("requesting_departament_project")
+  agents_projects    Project[] @relation("agent_departament_project")
 
   @@map("departaments")
 }
@@ -184,8 +185,11 @@ model Project {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String       @map("organization_id")
 
-  requestingDepartament   Departament @relation(fields: [requestingDepartamentId], references: [id], onDelete: Cascade)
+  requestingDepartament   Departament @relation("requesting_departament_project", fields: [requestingDepartamentId], references: [id], onDelete: Cascade)
   requestingDepartamentId String      @map("requesting_departament_id")
+
+  agentDepartament   Departament? @relation("agent_departament_project", fields: [agentDepartamentId], references: [id], onDelete: Cascade)
+  agentDepartamentId String?      @map("agent_departament_id")
 
   manager   User   @relation("manager_user_project", fields: [managerId], references: [id])
   managerId String @map("manager_id")

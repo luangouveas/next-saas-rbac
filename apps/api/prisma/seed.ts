@@ -68,33 +68,29 @@ async function seed() {
       where: { unitId: unit.id },
     })
 
-    await prisma.member.createMany({
-      data: [
-        {
-          userId: user.id,
-          organizationId: org.id,
-          unitId: units[0].id,
-          departamentId: departaments[0].id,
-          role: 'ADMIN',
-        },
-      ],
+    const memberAdmin = await prisma.member.create({
+      data: {
+        userId: user.id,
+        organizationId: org.id,
+        unitId: units[0].id,
+        departamentId: departaments[0].id,
+        role: 'ADMIN',
+      },
     })
 
-    await prisma.member.createMany({
-      data: [
-        {
-          userId: anotherUser.id,
-          organizationId: org.id,
-          unitId: units[0].id,
-          departamentId: departaments[1].id,
-          role: 'MEMBER',
-        },
-      ],
+    const member = await prisma.member.create({
+      data: {
+        userId: anotherUser.id,
+        organizationId: org.id,
+        unitId: units[0].id,
+        departamentId: departaments[1].id,
+        role: 'MEMBER',
+      },
     })
 
     const project = await prisma.project.create({
       data: {
-        name: faker.lorem.words({ min: 3, max: 5 }),
+        name: faker.lorem.words({ min: 3, max: 5 }).toUpperCase(),
         description: faker.lorem.sentence(),
         slug: faker.lorem.slug(),
         startDate: new Date().toISOString(),
@@ -102,9 +98,11 @@ async function seed() {
           Date.now() + 20 * 24 * 60 * 60 * 1000,
         ).toISOString(),
         status: 'IN_PROGRESS',
-        managerId: user.id,
         organizationId: org.id,
-        requestingDepartamentId: departaments[0].id,
+        managerId: memberAdmin.userId,
+        requestingDepartamentId: memberAdmin.departamentId,
+        agentId: member.userId,
+        agentDepartamentId: member.departamentId,
       },
     })
 

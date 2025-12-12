@@ -22,7 +22,8 @@ import { resetPassword } from './routes/auth/reset-password'
 import { getOrganizationBilling } from './routes/billing/get-organization-billing'
 import { createDepartament } from './routes/departaments/create-departament'
 import { getDepartament } from './routes/departaments/get-departament'
-import { getUnitDepartaments } from './routes/departaments/get-departaments'
+import { getDepartaments } from './routes/departaments/get-departaments'
+import { getUnitDepartaments } from './routes/departaments/get-unit-departaments'
 import { updateDepartament } from './routes/departaments/update-departament'
 import { acceptInvite } from './routes/invites/accept-invite'
 import { createInvite } from './routes/invites/create-invite'
@@ -112,6 +113,7 @@ app.register(createUnit)
 app.register(updateUnit)
 
 app.register(getDepartament)
+app.register(getDepartaments)
 app.register(getUnitDepartaments)
 app.register(createDepartament)
 app.register(updateDepartament)

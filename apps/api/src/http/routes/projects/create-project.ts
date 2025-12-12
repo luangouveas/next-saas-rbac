@@ -66,9 +66,15 @@ export async function createProject(app: FastifyInstance) {
           agentId,
         } = request.body
 
+        const agent = await prisma.member.findUnique({
+          where: {
+            id: agentId,
+          },
+        })
+
         const project = await prisma.project.create({
           data: {
-            name,
+            name: name.toUpperCase(),
             slug: createSlug(name),
             description,
             organizationId: userMembership.organizationId,
@@ -79,6 +85,7 @@ export async function createProject(app: FastifyInstance) {
             requestingDepartamentId,
             managerId,
             agentId,
+            agentDepartamentId: agent?.departamentId,
           },
         })
 

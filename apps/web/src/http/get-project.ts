@@ -15,6 +15,10 @@ interface GetProjectResponse {
     forecastDate: Date
     endDate: Date | null
     status: ProjectAndStepStatus
+    agentDepartament: {
+      id: string
+      name: string
+    } | null
     requestingDepartament: {
       id: string
       name: string
@@ -30,7 +34,7 @@ interface GetProjectResponse {
       name: string
       email: string
       avatarUrl: string | null
-    }
+    } | null
   }
 }
 

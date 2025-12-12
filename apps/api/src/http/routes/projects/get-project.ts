@@ -38,6 +38,12 @@ export async function getProject(app: FastifyInstance) {
                 forecastDate: z.date(),
                 endDate: z.date().nullable(),
                 status: projectAndStepStatusSchema.nullable(),
+                agentDepartament: z
+                  .object({
+                    id: z.string().uuid(),
+                    name: z.string().nullable(),
+                  })
+                  .nullable(),
                 requestingDepartament: z.object({
                   id: z.string().uuid(),
                   name: z.string().nullable(),
@@ -80,6 +86,12 @@ export async function getProject(app: FastifyInstance) {
             forecastDate: true,
             endDate: true,
             status: true,
+            agentDepartament: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
             requestingDepartament: {
               select: {
                 id: true,

@@ -22,6 +22,13 @@ export async function getProjects(app: FastifyInstance) {
           params: z.object({
             slug: z.string(),
           }),
+          querystring: z.object({
+            requestingDepartamentId: z.string().optional(),
+            agentDepartamentId: z.string().optional(),
+            managerId: z.string().optional(),
+            agentId: z.string().optional(),
+            name: z.string().optional(),
+          }),
           response: {
             200: z.object({
               projects: z.array(
@@ -37,6 +44,12 @@ export async function getProjects(app: FastifyInstance) {
                   forecastDate: z.date(),
                   endDate: z.date().nullable(),
                   status: projectAndStepStatusSchema.nullable(),
+                  agentDepartament: z
+                    .object({
+                      id: z.string().uuid(),
+                      name: z.string().nullable(),
+                    })
+                    .nullable(),
                   requestingDepartament: z.object({
                     id: z.string().uuid(),
                     name: z.string().nullable(),
@@ -63,6 +76,7 @@ export async function getProjects(app: FastifyInstance) {
       },
       async (request, reply) => {
         const { slug } = request.params
+        const searchParams = request.query
         const userMembership = await request.getUserMembership(slug)
 
         const { cannot } = getUserPermissions(userMembership)
@@ -72,6 +86,19 @@ export async function getProjects(app: FastifyInstance) {
             `You're not allowed to see organization projects.`,
           )
         }
+
+        const whereFilters = searchParams
+          ? {
+              agentId: searchParams.agentId ?? undefined,
+              managerId: searchParams.managerId ?? undefined,
+              name: searchParams.name
+                ? { contains: searchParams.name.toUpperCase() }
+                : undefined,
+              requestingDepartamentId:
+                searchParams.requestingDepartamentId ?? undefined,
+              agentDepartamentId: searchParams.agentDepartamentId ?? undefined,
+            }
+          : undefined
 
         const projects = await prisma.project.findMany({
           select: {
@@ -86,6 +113,12 @@ export async function getProjects(app: FastifyInstance) {
             forecastDate: true,
             endDate: true,
             status: true,
+            agentDepartament: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
             requestingDepartament: {
               select: {
                 id: true,
@@ -111,6 +144,7 @@ export async function getProjects(app: FastifyInstance) {
           },
           where: {
             organizationId: userMembership.organizationId,
+            ...whereFilters,
           },
           orderBy: {
             createdAt: 'desc',

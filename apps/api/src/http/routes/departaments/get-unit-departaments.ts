@@ -8,19 +8,20 @@ import { getUserPermissions } from '@/utils/get-user-permissions'
 
 import { UnauthorizedError } from '../_errors/unauthorized-error'
 
-export async function getDepartaments(app: FastifyInstance) {
+export async function getUnitDepartaments(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
     .get(
-      '/organization/:slug/departaments',
+      '/organization/:slug/unit/:unitId/departaments',
       {
         schema: {
           tags: ['Departaments'],
-          summary: 'Get all organization departaments',
+          summary: 'Get all unit departaments',
           security: [{ bearerAuth: [] }],
           params: z.object({
             slug: z.string(),
+            unitId: z.string(),
           }),
           response: {
             200: z.object({
@@ -39,7 +40,7 @@ export async function getDepartaments(app: FastifyInstance) {
         },
       },
       async (request) => {
-        const { slug } = request.params
+        const { slug, unitId } = request.params
 
         const userMembership = await request.getUserMembership(slug)
         const { cannot } = getUserPermissions(userMembership)
@@ -62,9 +63,7 @@ export async function getDepartaments(app: FastifyInstance) {
             },
           },
           where: {
-            unit: {
-              organizationId: userMembership.organizationId,
-            },
+            unitId,
           },
         })
 
