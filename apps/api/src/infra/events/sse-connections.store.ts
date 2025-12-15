@@ -26,7 +26,7 @@ export function getConnections(userId: string) {
   return connections.get(userId)
 }
 
-export function sendToUser(userId: string, data: unknown) {
+export function sendToUser<T>(userId: string, data: T) {
   const userConnections = connections.get(userId)
 
   if (!userConnections) {

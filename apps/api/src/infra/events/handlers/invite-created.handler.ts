@@ -1,13 +1,13 @@
-import { InviteCreatedEvent } from '@/domain/events/invite-created.event'
+import { InviteCreatedEvent } from '@/domain/events'
 import { eventBus } from '@/infra/events/event-bus'
 import { prisma } from '@/lib/prisma'
 
 import { sendToUser } from '../sse-connections.store'
 
-eventBus.subscribe<InviteCreatedEvent>('INVITE_CREATED', async (event) => {
-  // 1. Buscar usuário pelo email
+eventBus.subscribe<InviteCreatedEvent>('INVITE_CREATED', async (dataEvent) => {
+  // 1. Buscar usuário (destinatario) pelo email
   const user = await prisma.user.findUnique({
-    where: { email: event.email },
+    where: { email: dataEvent.email },
     select: { id: true },
   })
 
@@ -17,13 +17,7 @@ eventBus.subscribe<InviteCreatedEvent>('INVITE_CREATED', async (event) => {
   }
 
   // 3. Enviar notificação via SSE
-  sendToUser(user.id, {
-    type: 'INVITE_CREATED',
-    organizationId: event.organizationId,
-    organizationName: event.organizationName,
-    role: event.role,
-    createdAt: event.createdAt,
-  })
+  sendToUser(user.id, dataEvent)
 
   // console.log('Evento INVITE_CREATED recebido:', event)
 })

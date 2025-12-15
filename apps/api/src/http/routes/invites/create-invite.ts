@@ -4,8 +4,8 @@ import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 
+import { INVITE_CREATED_EVENT } from '@/domain/events'
 import { auth } from '@/http/middlewares/auth'
-import { eventBus } from '@/infra/events/event-bus'
 import { prisma } from '@/lib/prisma'
 import { createRandomPassword } from '@/utils/create-random-password'
 import { getUserPermissions } from '@/utils/get-user-permissions'
@@ -133,7 +133,7 @@ export async function createInvite(app: FastifyInstance) {
           )
         }
 
-        eventBus.publish('INVITE_CREATED', {
+        INVITE_CREATED_EVENT.execute({
           type: 'INVITE_CREATED',
           inviteId: invite.id,
           organizationId: userMembership.organizationId,
