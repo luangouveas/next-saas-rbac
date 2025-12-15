@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 
 import { isAuthenticated } from '@/auth/auth'
 
+import { NotificationsProvider } from '../providers/notifications-provider'
+
 export default async function AppLayout({
   children,
   sheet,
@@ -14,9 +16,9 @@ export default async function AppLayout({
   }
 
   return (
-    <>
+    <NotificationsProvider>
       {children}
       {sheet}
-    </>
+    </NotificationsProvider>
   )
 }

@@ -1,5 +1,7 @@
+import { env } from '@saas/env'
 import { FastifyInstance } from 'fastify'
 import { fastifyPlugin } from 'fastify-plugin'
+import jwt from 'jsonwebtoken'
 
 import { prisma } from '@/lib/prisma'
 
@@ -11,6 +13,23 @@ export const auth = fastifyPlugin(async (app: FastifyInstance) => {
       try {
         const { sub } = await request.jwtVerify<{ sub: string }>()
 
+        return sub
+      } catch {
+        throw new UnauthorizedError('Invalid auth token')
+      }
+    }
+
+    request.getCurrentUserIdByCookie = () => {
+      const token = request.cookies.token
+
+      if (!token) {
+        throw new UnauthorizedError('Invalid auth token')
+      }
+
+      try {
+        const { sub } = jwt.verify(token, env.JWT_SECRET) as {
+          sub: string
+        }
         return sub
       } catch {
         throw new UnauthorizedError('Invalid auth token')

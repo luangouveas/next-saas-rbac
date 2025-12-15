@@ -5,6 +5,7 @@ import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 
 import { auth } from '@/http/middlewares/auth'
+import { eventBus } from '@/infra/events/event-bus'
 import { prisma } from '@/lib/prisma'
 import { createRandomPassword } from '@/utils/create-random-password'
 import { getUserPermissions } from '@/utils/get-user-permissions'
@@ -41,7 +42,6 @@ export async function createInvite(app: FastifyInstance) {
       },
       async (request, reply) => {
         const { slug } = request.params
-        const userId = await request.getCurrentUserId()
         const userMembership = await request.getUserMembership(slug)
 
         const { cannot } = getUserPermissions(userMembership)
@@ -84,14 +84,20 @@ export async function createInvite(app: FastifyInstance) {
           )
         }
 
+        const organization = await prisma.organization.findUnique({
+          where: {
+            id: userMembership.organizationId,
+          },
+        })
+
         const invite = await prisma.invite.create({
           data: {
-            organizationId: userMembership.organizationId,
+            organizationId: organization!.id,
             unitId,
             departamentId,
             email,
             role,
-            authorId: userId,
+            authorId: userMembership.userId,
           },
         })
 
@@ -126,6 +132,17 @@ export async function createInvite(app: FastifyInstance) {
             `Clicando no link abaixo, você será redirecionado ao nosso site, onde poderá aceitar o convite`,
           )
         }
+
+        eventBus.publish('INVITE_CREATED', {
+          type: 'INVITE_CREATED',
+          inviteId: invite.id,
+          organizationId: userMembership.organizationId,
+          organizationName: organization!.name,
+          email: invite.email,
+          role: invite.role,
+          authorId: userMembership.userId,
+          createdAt: invite.createdAt,
+        })
 
         console.log(`http://localhost:3000/invite/${invite.id}`)
 

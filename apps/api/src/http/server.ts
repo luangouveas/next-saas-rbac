@@ -1,3 +1,5 @@
+import '@/infra/events/handlers/invite-created.handler'
+
 import fastifyCors from '@fastify/cors'
 import { fastifyJwt } from '@fastify/jwt'
 import fastifySwagger from '@fastify/swagger'
@@ -25,6 +27,7 @@ import { getDepartament } from './routes/departaments/get-departament'
 import { getDepartaments } from './routes/departaments/get-departaments'
 import { getUnitDepartaments } from './routes/departaments/get-unit-departaments'
 import { updateDepartament } from './routes/departaments/update-departament'
+import { notificationsRoute } from './routes/events/notifications'
 import { acceptInvite } from './routes/invites/accept-invite'
 import { createInvite } from './routes/invites/create-invite'
 import { getInvite } from './routes/invites/get-invite'
@@ -84,7 +87,10 @@ app.register(fastifySwaggerUi, {
   routePrefix: '/docs',
 })
 
-app.register(fastifyCors)
+app.register(fastifyCors, {
+  origin: ['http://localhost:3000'],
+  credentials: true,
+})
 
 app.register(fastifyJwt, {
   secret: env.JWT_SECRET,
@@ -138,6 +144,9 @@ app.register(revokeInvite)
 app.register(getPendingInvites)
 
 app.register(getOrganizationBilling)
+
+app.register(import('@fastify/cookie'))
+app.register(notificationsRoute)
 
 app.listen({ port: env.SERVER_PORT, host: '0.0.0.0' }).then(() => {
   console.log(`HTTP Server running on http://localhost:${env.SERVER_PORT}`)
