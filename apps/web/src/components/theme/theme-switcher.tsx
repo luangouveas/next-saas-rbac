@@ -4,37 +4,29 @@ import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 
 import { Button } from '../ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
 
 export function ThemeSwitcher() {
   const { setTheme } = useTheme()
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Sun className="block size-4 dark:hidden" />
-          <Moon className="hidden size-4 dark:block" />
+    <div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="block justify-items-center rounded-xl dark:hidden"
+        onClick={() => setTheme('dark')}
+      >
+        <Sun className="size-4" />
+      </Button>
 
-          <span className="sr-only">Toggle Theme</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme('light')}>
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('dark')}>
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('system')}>
-          System
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="hidden justify-items-center rounded-xl dark:block"
+        onClick={() => setTheme('light')}
+      >
+        <Moon className="size-4" />
+      </Button>
+    </div>
   )
 }
