@@ -52,7 +52,7 @@ export function NotificationsProvider({
     }
 
     eventSource.onerror = () => {
-      console.error('Erro na conexão SSE')
+      console.log('Erro na conexão SSE')
     }
 
     return () => {
