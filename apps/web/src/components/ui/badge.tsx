@@ -20,6 +20,8 @@ const badgeVariants = cva(
           'text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
         secondary:
           'border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90',
+        success:
+          'border-transparent bg-green-400 text-white focus-visible:ring-green/20 dark:focus-visible:ring-green/40 [a&]:hover:bg-green/90',
       },
     },
   },
