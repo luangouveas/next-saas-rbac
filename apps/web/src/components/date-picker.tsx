@@ -1,5 +1,6 @@
 'use client'
 
+import { CalendarDate } from '@internationalized/date'
 import { CalendarIcon } from 'lucide-react'
 import {
   Button,
@@ -16,14 +17,31 @@ import { DateInput } from '@/components/ui/datefield-rac'
 interface DatePickerComponentPorps {
   label?: string
   name: string
+  enablePicker?: boolean
+  defaultValue?: string
 }
 
 export default function DatePickerComponent({
   label,
   name,
+  enablePicker = true,
+  defaultValue,
 }: DatePickerComponentPorps) {
+  function transformDateStringToCalendarDate(dateString: string) {
+    const date = dateString.replace('T00:00:00.000Z', '').split('-')
+    return new CalendarDate(Number(date[0]), Number(date[1]), Number(date[2]))
+  }
+
+  const defaultDate = defaultValue
+    ? transformDateStringToCalendarDate(defaultValue)
+    : undefined
+
   return (
-    <DatePicker className="*:not-first:mt-2" name={name}>
+    <DatePicker
+      className="*:not-first:mt-2"
+      name={name}
+      defaultValue={defaultDate}
+    >
       {label && (
         <Label className="text-sm font-medium text-foreground">{label}</Label>
       )}
@@ -31,10 +49,13 @@ export default function DatePickerComponent({
         <Group className="w-full">
           <DateInput className="pe-9" />
         </Group>
-        <Button className="data-focus-visible:border-ring data-focus-visible:ring-[3px] data-focus-visible:ring-ring/50 z-10 -me-px -ms-9 flex w-9 items-center justify-center rounded-e-md text-muted-foreground/80 outline-none transition-[color,box-shadow] hover:text-foreground">
-          <CalendarIcon size={16} />
-        </Button>
+        {enablePicker && (
+          <Button className="data-focus-visible:border-ring data-focus-visible:ring-[3px] data-focus-visible:ring-ring/50 z-10 -me-px -ms-9 flex w-9 items-center justify-center rounded-e-md text-muted-foreground/80 outline-none transition-[color,box-shadow] hover:text-foreground">
+            <CalendarIcon size={16} />
+          </Button>
+        )}
       </div>
+
       <Popover
         className="outline-hidden data-entering:animate-in data-exiting:animate-out z-50 rounded-lg border bg-background text-popover-foreground shadow-lg data-[entering]:fade-in-0 data-[exiting]:fade-out-0 data-[entering]:zoom-in-95 data-[exiting]:zoom-out-95 data-[placement=bottom]:slide-in-from-top-2 data-[placement=left]:slide-in-from-right-2 data-[placement=right]:slide-in-from-left-2 data-[placement=top]:slide-in-from-bottom-2"
         offset={4}
